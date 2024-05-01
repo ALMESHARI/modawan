@@ -1,0 +1,8 @@
+{
+    "csharp.debug.console": "externalTerminal",
+    "editor.fontSize": 13,
+    "dart.cliConsole": "terminal",
+    "code-runner.runInTerminal": true,
+    "dart.flutterHotReloadOnSave": "all",
+    "dart.hotReloadOnSave": "all"
+}
