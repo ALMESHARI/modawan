@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:modawan/features/auth/UI/loginPage.dart';
+import 'package:modawan/features/auth/UI/login_page.dart';
 import 'package:modawan/features/auth/cubit/auth_cubit.dart';
 import 'package:modawan/features/blogs/UIs/home.dart';
 import 'package:modawan/image_upload_page.dart';
-import 'package:modawan/splashPage.dart';
+import 'package:modawan/splash_page.dart';
 
 class AppRouter {
   static const String initialRoute = '/';

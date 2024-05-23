@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:modawan/core/failures.dart';
 import 'package:modawan/core/imagePickerHelper.dart';
 import 'package:modawan/features/profile/repository/profile_repository.dart';
 import 'package:modawan/main.dart';
@@ -15,7 +12,7 @@ class ImageUploadPage extends StatefulWidget {
 }
 
 class _ImageUploadPageState extends State<ImageUploadPage> {
-  File? _image;
+  // File? _image;
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +35,12 @@ class _ImageUploadPageState extends State<ImageUploadPage> {
                   res.fold(
                     (l) {
                       print(l.message);
-                      if (l is Failure) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(l.message),
                           ),
                         );
-                      }
+                    
                     },
                     (r) {
                       print(r);

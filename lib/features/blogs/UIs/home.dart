@@ -21,6 +21,13 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Home Page'),
         actions: [
+          // button to change mode 
+          IconButton(
+            onPressed: () {
+              themeManager.toggleTheme();
+            },
+            icon: const Icon(Icons.brightness_4),
+          ),
           IconButton(
             onPressed: () async {
               await authCubit.signOut();
@@ -28,31 +35,46 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.logout),
           ),],
       ),
-      body: Column(children: [
-        if (data != null) Text(data!),
-        Text(
-          'Welcome ${supabase.auth.currentUser!.email} to Supabase Flutter',
-        ),
-        SizedBox(height: 20),
-        ElevatedButton(
-          onPressed: () async {
-            final resdata = await supabase.from('profiles').select();
-            print(resdata);
-            setState(() {
-              data = resdata.toString();
-            });
-          },
-          child: const Text('Show profile'),
-        ),
-        SizedBox(height: 20),
-        // navigate to imageupload page
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pushNamed(context, '/image_uploader_test');
-          },
-          child: const Text('Image Upload Test'),
-        ),
-      ]),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+          if (data != null) Text(data!),
+          Text(
+            'Welcome ${supabase.auth.currentUser!.email} to Supabase Flutter',
+          ),
+          SizedBox(height: 20),
+          TextFormField(
+            
+            decoration: InputDecoration(
+              hintText: 'Enter your name',
+              prefixIcon: const Icon(Icons.person),
+            ),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            key: const Key('show_profile'),
+            onPressed: () async {
+              final resdata = await supabase.from('profiles').select();
+              print(resdata);
+              setState(() {
+                data = resdata.toString();
+              });
+            },
+            child: const Text('Show profile'),
+          ),
+          SizedBox(height: 20),
+          // navigate to imageupload page
+          ElevatedButton(
+            key: const Key('image_upload_test'),
+            onPressed: () {
+              Navigator.pushNamed(context, '/image_uploader_test');
+            },
+            child: const Text('Image Upload Test'),
+          ),
+        ]),
+      ),
     );
   }
 }
