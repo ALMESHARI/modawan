@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:modawan/features/auth/UI/login_page.dart';
-import 'package:modawan/features/auth/cubit/auth_cubit.dart';
+import 'package:modawan/features/auth/cubit/auth_router_cubit.dart';
 import 'package:modawan/features/blogs/UIs/home.dart';
 import 'package:modawan/image_upload_page.dart';
 import 'package:modawan/splash_page.dart';
@@ -10,10 +10,10 @@ import 'package:modawan/splash_page.dart';
 class AppRouter {
   static const String initialRoute = '/';
   static final routes = <String, WidgetBuilder>{
-    '/splash': (_) => SplashPage(),
+    '/splash': (_) => const SplashPage(),
     '/login': (_) => LoginPage(),
     '/home': (_) => const HomePage(),
-    '/image_uploader_test': (_) => ImageUploadPage(),
+    '/image_uploader_test': (_) => const ImageUploadPage(),
   };
 
   static clearAndPush(BuildContext context, String routeName) {
@@ -22,21 +22,12 @@ class AppRouter {
   }
 }
 
-BlocBuilder<AuthCubit, Object?> authRouteBuilder() {
-  final authCubit = GetIt.I.get<AuthCubit>();
+BlocBuilder<AuthRouterCubit, AuthRouterState?> authRouteBuilder() {
+  final authCubit = GetIt.I.get<AuthRouterCubit>();
 
   return BlocBuilder(
     bloc: authCubit,
     buildWhen: (previous, current) {
-
-      if ((previous is AuthFailure) && current is AuthFailure) {
-        // check if the failure message is the same
-        return previous.failure.message != current.failure.message;
-      }
-      if (previous is Unauthenticated && current is AuthFailure) {
-        // check if the user is the same
-        return false;
-      }
       return previous.runtimeType != current.runtimeType;
     },
     builder: (context, state) {
@@ -44,7 +35,7 @@ BlocBuilder<AuthCubit, Object?> authRouteBuilder() {
       print('rebuild form main ${state.runtimeType}');
       if (state is Authenticated) {
         return HomePage();
-      } else if (state is Unauthenticated || state is AuthFailure) {
+      } else if (state is Unauthenticated) {
         return LoginPage();
       } else {
         return SplashPage();

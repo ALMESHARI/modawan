@@ -4,6 +4,15 @@ import 'package:flutter/material.dart';
 //
 
 ThemeData lightTheme = ThemeData(
+    textSelectionTheme: TextSelectionThemeData(cursorColor: const Color.fromARGB(255, 61, 61, 61)),
+    textButtonTheme: textButtonTheme,
+
+  colorScheme: ColorScheme.light(
+    primary: AppColors.lightBackgroundGradient.colors[0],
+    secondary: AppColors.lightBackgroundGradient.colors[1],
+    // onPrimary: AppColors.whiteblue,
+    // onSecondary: AppColors.whiteblue,
+  ),
   textTheme: TextTheme(
     bodyMedium: AppTextStyles.maintextstyle,
     displayMedium: AppTextStyles.clickabletext,
@@ -18,6 +27,14 @@ ThemeData lightTheme = ThemeData(
 );
 
 ThemeData darkTheme = ThemeData(
+  textButtonTheme: textButtonTheme,
+  textSelectionTheme: TextSelectionThemeData(cursorColor: AppColors.whiteblue),
+  colorScheme: ColorScheme.dark(
+    primary: AppColors.darkBackgroundGradient.colors[0],
+    secondary: AppColors.darkBackgroundGradient.colors[1],
+    // onPrimary: AppColors.whiteblue,
+    // onSecondary: AppColors.whiteblue,
+  ),
   textTheme: TextTheme(
     bodyMedium: AppTextStyles.maintextstyle
         .copyWith(color: const Color.fromARGB(255, 223, 223, 223)),
@@ -31,24 +48,42 @@ ThemeData darkTheme = ThemeData(
   ),
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: elevatedButtonStyle.copyWith(
-      backgroundColor: WidgetStateProperty.all(AppColors.whiteblue),
+      backgroundColor: WidgetStateProperty.resolveWith<Color>(
+        (Set<WidgetState> states) {
+          if (states.contains(WidgetState.pressed))
+            AppColors.whiteblue.withOpacity(0.5);
+          else if (states.contains(WidgetState.disabled))
+            return AppColors.whiteblue.withOpacity(0.6);
+          return AppColors.whiteblue
+              .withOpacity(1); // Use the component's default.
+        },
+      ),
       foregroundColor: WidgetStateProperty.all(AppColors.darkblue),
     ),
   ),
-  inputDecorationTheme: inputDecorationTheme,
+  inputDecorationTheme:
+      inputDecorationTheme.copyWith(prefixIconColor: AppColors.whiteblue, ),
 );
 
 ButtonStyle elevatedButtonStyle = ButtonStyle(
-    shadowColor: WidgetStateProperty.all(mainBoxShadow.color),
-    elevation: WidgetStateProperty.all(10),
+    
     minimumSize: const WidgetStatePropertyAll(
-      Size(300, 50),
+      Size(450, 56),
     ),
     foregroundColor: WidgetStateProperty.all(AppColors.whiteblue),
     textStyle: WidgetStateProperty.all(AppTextStyles.buttontextstyle),
     // add gradient color for the background
 
-    backgroundColor: WidgetStateProperty.all(AppColors.darkblue),
+    backgroundColor: WidgetStateProperty.resolveWith<Color>(
+      (Set<WidgetState> states) {
+        if (states.contains(WidgetState.pressed))
+          AppColors.darkblue.withOpacity(0.5);
+        else if (states.contains(WidgetState.disabled))
+          return AppColors.darkblue.withOpacity(0.6);
+        return AppColors.darkblue
+            .withOpacity(1); // Use the component's default.
+      },
+    ),
     padding: WidgetStateProperty.all(
       const EdgeInsets.symmetric(
         vertical: 20,
@@ -69,16 +104,37 @@ InputDecorationTheme inputDecorationTheme = InputDecorationTheme(
     borderSide: BorderSide.none,
     borderRadius: BorderRadius.circular(10),
   ),
-  filled: true,
-  fillColor: AppColors.glasscolor,
+  // filled: true,
+  // fillColor: AppColors.glasscolor,
   prefixIconColor: AppColors.darkblue,
-  
+);
 
-
+TextButtonThemeData textButtonTheme = TextButtonThemeData(
+  style: TextButton.styleFrom(
+    foregroundColor: AppColors.highlighttextcolor,
+    textStyle: AppTextStyles.clickabletext,
+  ),
 );
 
 class AppColors {
-  const AppColors();
+  AppColors();
+  //radial gradient from FFFFF to F9FAFF
+  static const LinearGradient lightBackgroundGradient = LinearGradient(
+    begin: Alignment.center,
+    end: Alignment.bottomLeft,
+    colors: <Color>[
+      Color.fromARGB(255, 249, 250, 255),
+      Color.fromARGB(255, 255, 255, 255),
+    ],
+    stops: <double>[0.4, 1.0],
+  );
+
+  static const LinearGradient darkBackgroundGradient = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: <Color>[Colors.black87, Colors.black],
+    stops: <double>[1, 1.0],
+  );
 
   static const Color regulartextcolor = Color(0xff595985);
   static const Color inputplaceholdertext = Color(0xffb1b1c9);
@@ -126,10 +182,10 @@ class AppTextStyles {
 }
 
 // create box shadow from figma where blur = 20 , spread and x and y = 0 color is 0000000 with 9% opacity
-BoxShadow mainBoxShadow = const BoxShadow(
+BoxShadow mainBoxShadow = BoxShadow(
   blurStyle: BlurStyle.outer,
-  color: Color.fromARGB(129, 134, 134, 134),
-  blurRadius: 5,
+  color: Colors.black26.withOpacity(0.1),
+  blurRadius: 15,
   spreadRadius: 0,
-  offset: Offset(0, 0),
+  offset: const Offset(0, 0),
 );
