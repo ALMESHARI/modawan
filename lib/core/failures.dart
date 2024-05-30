@@ -28,7 +28,7 @@ Failure getFailure(String message) {
     case 'network':
       return NetworkFailure('Network Failure');
     default:
-      return ServerFailure('Server Failure');
+      return ServerFailure(message);
   }
 }
 

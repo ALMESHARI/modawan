@@ -23,7 +23,7 @@ class BackgroundPen extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('/images/pen.png'),
+                image: AssetImage('assets/images/pen.png'),
                 fit: BoxFit.cover,
               ),
             ),

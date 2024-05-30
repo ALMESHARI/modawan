@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 //
 
 ThemeData lightTheme = ThemeData(
-    textSelectionTheme: TextSelectionThemeData(cursorColor: const Color.fromARGB(255, 61, 61, 61)),
-    textButtonTheme: textButtonTheme,
-
+  textSelectionTheme: const TextSelectionThemeData(
+      cursorColor: Color.fromARGB(255, 61, 61, 61)),
+  textButtonTheme: textButtonTheme,
   colorScheme: ColorScheme.light(
     primary: AppColors.lightBackgroundGradient.colors[0],
     secondary: AppColors.lightBackgroundGradient.colors[1],
@@ -28,7 +28,8 @@ ThemeData lightTheme = ThemeData(
 
 ThemeData darkTheme = ThemeData(
   textButtonTheme: textButtonTheme,
-  textSelectionTheme: TextSelectionThemeData(cursorColor: AppColors.whiteblue),
+  textSelectionTheme:
+      const TextSelectionThemeData(cursorColor: AppColors.whiteblue),
   colorScheme: ColorScheme.dark(
     primary: AppColors.darkBackgroundGradient.colors[0],
     secondary: AppColors.darkBackgroundGradient.colors[1],
@@ -50,10 +51,11 @@ ThemeData darkTheme = ThemeData(
     style: elevatedButtonStyle.copyWith(
       backgroundColor: WidgetStateProperty.resolveWith<Color>(
         (Set<WidgetState> states) {
-          if (states.contains(WidgetState.pressed))
+          if (states.contains(WidgetState.pressed)) {
             AppColors.whiteblue.withOpacity(0.5);
-          else if (states.contains(WidgetState.disabled))
+          } else if (states.contains(WidgetState.disabled)) {
             return AppColors.whiteblue.withOpacity(0.6);
+          }
           return AppColors.whiteblue
               .withOpacity(1); // Use the component's default.
         },
@@ -61,14 +63,14 @@ ThemeData darkTheme = ThemeData(
       foregroundColor: WidgetStateProperty.all(AppColors.darkblue),
     ),
   ),
-  inputDecorationTheme:
-      inputDecorationTheme.copyWith(prefixIconColor: AppColors.whiteblue, ),
+  inputDecorationTheme: inputDecorationTheme.copyWith(
+    prefixIconColor: AppColors.whiteblue,
+  ),
 );
 
 ButtonStyle elevatedButtonStyle = ButtonStyle(
-    
     minimumSize: const WidgetStatePropertyAll(
-      Size(450, 56),
+      Size(470, 56),
     ),
     foregroundColor: WidgetStateProperty.all(AppColors.whiteblue),
     textStyle: WidgetStateProperty.all(AppTextStyles.buttontextstyle),
@@ -76,17 +78,18 @@ ButtonStyle elevatedButtonStyle = ButtonStyle(
 
     backgroundColor: WidgetStateProperty.resolveWith<Color>(
       (Set<WidgetState> states) {
-        if (states.contains(WidgetState.pressed))
+        if (states.contains(WidgetState.pressed)) {
           AppColors.darkblue.withOpacity(0.5);
-        else if (states.contains(WidgetState.disabled))
+        } else if (states.contains(WidgetState.disabled)) {
           return AppColors.darkblue.withOpacity(0.6);
+        }
         return AppColors.darkblue
             .withOpacity(1); // Use the component's default.
       },
     ),
     padding: WidgetStateProperty.all(
       const EdgeInsets.symmetric(
-        vertical: 20,
+        vertical: 15,
         horizontal: 40,
       ),
     ),
@@ -98,6 +101,8 @@ ButtonStyle elevatedButtonStyle = ButtonStyle(
     ));
 
 InputDecorationTheme inputDecorationTheme = InputDecorationTheme(
+  contentPadding: const EdgeInsets.symmetric(vertical: 0.0),
+
   hintStyle: AppTextStyles.maintextstyle
       .copyWith(color: AppColors.inputplaceholdertext),
   border: OutlineInputBorder(
@@ -132,7 +137,10 @@ class AppColors {
   static const LinearGradient darkBackgroundGradient = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: <Color>[Colors.black87, Colors.black],
+    colors: <Color>[
+      Color.fromARGB(255, 17, 17, 31),
+      Color.fromARGB(255, 30, 30, 48)
+    ],
     stops: <double>[1, 1.0],
   );
 

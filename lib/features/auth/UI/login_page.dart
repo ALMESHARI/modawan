@@ -6,6 +6,7 @@ import 'package:modawan/core/widgets/modawan_logo.dart';
 import 'package:modawan/features/auth/cubit/auth_manager_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:modawan/theme/theme_constants.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -13,13 +14,11 @@ class LoginPage extends StatelessWidget {
   // create controllers for email and password
   final emailController = TextEditingController();
 
-  final passwordController = TextEditingController();
-
   final authCubit = GetIt.I.get<AuthManagerCubit>();
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthManagerCubit, AuthCubitState>(
+    return BlocBuilder<AuthManagerCubit, AuthManagerCubitState>(
         bloc: authCubit,
         builder: (context, state) {
           if (state is AuthFailure && context.mounted) {
@@ -30,67 +29,125 @@ class LoginPage extends StatelessWidget {
                 ),
               );
             });
-            authCubit.clearFailure();
+            authCubit.clearState();
+          } else if (state is AuthOTPSent && context.mounted) {
+            SchedulerBinding.instance.addPostFrameCallback((_) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('OTP sent to your email'),
+                ),
+              );
+            });
           }
+
+          final isDark =
+              Theme.of(context).brightness == Brightness.dark ? true : false;
           return Scaffold(
+            resizeToAvoidBottomInset: false,
             // backgroundColor: Colors.transparent,
             body: BackgroundPen(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CustomPaint(
-                      size: Size(208, 243),
-                      painter: ModawanLogoPainter(),
-                    ),
-                    // create two fields for email and password
-                    SizedBox(
-                      height: 262,
-                      child: Column(
+              child: Center(
+                child: Container(
+                  alignment: Alignment.center,
+                  width: 500,
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 80.0, horizontal: 20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      CustomPaint(
+                        size: const Size(208, 243),
+                        painter: ModawanLogoPainter(
+                            isDark ? AppColors.whiteblue : AppColors.darkblue),
+                      ),
+                      // create two fields for email and password
+                      Column(
                         children: [
                           GlassContainer(
-                            child: TextField(
-                              controller: emailController,
-                              decoration: const InputDecoration(
-                                prefixIcon: Icon(Icons.email),
-                                hintText: 'Email',
-                              ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    // disable when loading
+                                    enabled: state is! AuthLoading &&
+                                        state is! AuthOTPSent,
+                                    // put value to be the same email when otp is sent
+                      
+                                    controller: emailController,
+                                    decoration: const InputDecoration(
+                                      prefixIcon: Icon(Icons.email),
+                                      hintText: 'Email',
+                                    ),
+                                  ),
+                                ),
+                                state is AuthOTPSent
+                                    ? IconButton(
+                                        onPressed: () {
+                                          emailController.clear();
+                                          authCubit.clearState();
+                                        },
+                                        icon: const Icon(Icons.edit),
+                                      )
+                                    : const SizedBox(),
+                              ],
                             ),
                           ),
-                          const SizedBox(height: 20),
-                    
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          () {
+                            if (state is AuthOTPSent) {
+                              return GlassContainer(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 7.0, vertical: 12.0),
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.verified,
+                                        color: AppColors.highlighttextcolor,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Flexible(
+                                        child: Text(
+                                          'We have sent a verfication link to your email',
+                                          style: AppTextStyles.buttontextstyle
+                                              .copyWith(
+                                                  height: 1.2,
+                                                  color: AppColors
+                                                      .highlighttextcolor),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }
+                            return const SizedBox();
+                          }()
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          // create a button to login
                           GlassContainer(
-                            child: TextField(
-                              controller: passwordController,
-                              decoration: const InputDecoration(
-                                prefixIcon: Icon(Icons.password),
-                                hintText: 'Password',
-                              ),
+                            child: SubmitButton(
+                              authCubit: authCubit,
+                              emailController: emailController,
                             ),
                           ),
-                          const SizedBox(height: 10),
-                          //forgot password
-                          Align(
-                            alignment: Alignment.centerLeft,
-                    
-                            child: TextButton(
-                              onPressed: () {},
-                              child: const Text('Forgot Password?'),
-                            ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          GoogleAuthButton(
+                            authCubit: authCubit,
                           ),
                         ],
                       ),
-                    ),
-                    // create a button to login
-                    GlassContainer(
-                      child: SubmitButton(
-                          authCubit: authCubit,
-                          emailController: emailController,
-                          passwordController: passwordController),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -99,17 +156,57 @@ class LoginPage extends StatelessWidget {
   }
 }
 
+class GoogleAuthButton extends StatelessWidget {
+  const GoogleAuthButton({super.key, required this.authCubit});
+  final AuthManagerCubit authCubit;
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthManagerCubit, AuthManagerCubitState>(
+      bloc: authCubit,
+      builder: (context, state) {
+        return GestureDetector(
+          onTap: () async {
+            if (state is! AuthLoading) {
+              await authCubit.googleSignIn();
+            }
+          },
+          child: GlassContainer(
+              height: 50,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                        height: 27,
+                        width: 27,
+                        child: Image.asset('assets/images/google_logo.png')),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      'Login with Google',
+                      style: AppTextStyles.buttontextstyle,
+                    ),
+                  ],
+                ),
+              )),
+        );
+      },
+    );
+  }
+}
+
 class SubmitButton extends StatefulWidget {
   const SubmitButton({
     super.key,
     required this.authCubit,
     required this.emailController,
-    required this.passwordController,
   });
 
   final AuthManagerCubit authCubit;
   final TextEditingController emailController;
-  final TextEditingController passwordController;
 
   @override
   State<SubmitButton> createState() => _SubmitButtonState();
@@ -119,10 +216,6 @@ class _SubmitButtonState extends State<SubmitButton> {
   @override
   initState() {
     widget.emailController.addListener(() {
-      setState(() {});
-    });
-
-    widget.passwordController.addListener(() {
       setState(() {});
     });
     super.initState();
@@ -138,20 +231,18 @@ class _SubmitButtonState extends State<SubmitButton> {
   }
 
   bool fieldChecker() {
-    return widget.emailController.text.isNotEmpty &&
-        widget.passwordController.text.isNotEmpty;
+    return widget.emailController.text.trim().isNotEmpty;
   }
 
-  AuthCubitState get state => widget.authCubit.state;
+  AuthManagerCubitState get state => widget.authCubit.state;
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: state is! AuthLoading && fieldChecker()
           ? () async {
-              await widget.authCubit.loginWithPassword(
-                  widget.emailController.text, widget.passwordController.text);
-              widget.emailController.clear();
-              widget.passwordController.clear();
+              await widget.authCubit
+                  .loginWithEmailOTP(widget.emailController.text);
+              // widget.authCubit.emit(AuthOTPSent(widget.emailController.text));
             }
           : null,
       child: state is! AuthLoading
