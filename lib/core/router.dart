@@ -31,15 +31,17 @@ BlocBuilder<AuthRouterCubit, AuthRouterState?> authRouteBuilder() {
       return previous.runtimeType != current.runtimeType;
     },
     builder: (context, state) {
-      //show snackbar if login fails
-      print('rebuild form main ${state.runtimeType}');
-      if (state is Authenticated) {
-        return HomePage();
-      } else if (state is Unauthenticated) {
-        return LoginPage();
-      } else {
-        return SplashPage();
+      Widget buildPage(AuthRouterState state) {
+         if (state is Authenticated) {
+          return HomePage();
+        } else if (state is Unauthenticated) {
+          return LoginPage();
+        } else {
+          return SplashPage();
+        }
       }
+      return AnimatedSwitcher(duration: const Duration(milliseconds: 300), child: buildPage(state!));
+    
     },
   );
 }

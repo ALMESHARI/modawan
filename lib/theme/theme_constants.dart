@@ -70,7 +70,7 @@ ThemeData darkTheme = ThemeData(
 
 ButtonStyle elevatedButtonStyle = ButtonStyle(
     minimumSize: const WidgetStatePropertyAll(
-      Size(470, 56),
+      Size(470, 50),
     ),
     foregroundColor: WidgetStateProperty.all(AppColors.whiteblue),
     textStyle: WidgetStateProperty.all(AppTextStyles.buttontextstyle),

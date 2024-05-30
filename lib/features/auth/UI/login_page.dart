@@ -11,9 +11,7 @@ import 'package:modawan/theme/theme_constants.dart';
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
-  // create controllers for email and password
   final emailController = TextEditingController();
-
   final authCubit = GetIt.I.get<AuthManagerCubit>();
 
   @override
@@ -61,7 +59,6 @@ class LoginPage extends StatelessWidget {
                         painter: ModawanLogoPainter(
                             isDark ? AppColors.whiteblue : AppColors.darkblue),
                       ),
-                      // create two fields for email and password
                       Column(
                         children: [
                           GlassContainer(
@@ -74,7 +71,6 @@ class LoginPage extends StatelessWidget {
                                     enabled: state is! AuthLoading &&
                                         state is! AuthOTPSent,
                                     // put value to be the same email when otp is sent
-                      
                                     controller: emailController,
                                     decoration: const InputDecoration(
                                       prefixIcon: Icon(Icons.email),
@@ -85,8 +81,9 @@ class LoginPage extends StatelessWidget {
                                 state is AuthOTPSent
                                     ? IconButton(
                                         onPressed: () {
-                                          emailController.clear();
                                           authCubit.clearState();
+                                          emailController.clear();
+
                                         },
                                         icon: const Icon(Icons.edit),
                                       )
@@ -214,20 +211,28 @@ class SubmitButton extends StatefulWidget {
 
 class _SubmitButtonState extends State<SubmitButton> {
   @override
-  initState() {
-    widget.emailController.addListener(() {
-      setState(() {});
-    });
+  void initState() {
     super.initState();
+    widget.emailController.addListener(_emailChanged);
+  }
+
+  void _emailChanged() {
+    setState(() {
+      // Any state updates should go here if needed
+    });
   }
 
   @override
-  setState(fn) {
+  void setState(fn) {
     if (mounted) {
-      super.setState(() {
-        fn();
-      });
+      super.setState(fn);
     }
+  }
+
+  @override
+  void dispose() {
+    widget.emailController.removeListener(_emailChanged);
+    super.dispose();
   }
 
   bool fieldChecker() {
