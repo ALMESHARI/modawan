@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:modawan/core/widgets/custom_containers.dart';
 import 'package:modawan/features/auth/cubit/auth_manager_cubit.dart';
 import 'package:modawan/main.dart';
@@ -71,8 +72,8 @@ class _HomePageState extends State<HomePage> {
               // navigate to imageupload page
               ElevatedButton(
                 key: const Key('image_upload_test'),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/image_uploader_test');
+                onPressed: () async {
+                  context.push('/image');
                 },
                 child: const Text('Image Upload Test'),
               ),

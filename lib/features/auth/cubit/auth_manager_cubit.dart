@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:modawan/core/failures.dart';
-import 'package:modawan/features/auth/cubit/auth_router_cubit.dart';
 import 'package:modawan/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,34 +11,10 @@ part 'auth_manager_state.dart';
 // this cubit is the main cubit  for authentication where all the requests
 // are made and the state is managed based in the response from the server
 // the cubit is also responsible for notify the loading state during the request
-// and also to manage emiting states to another cubit called AuthRouterCubit
-// which is responsible only for the navigation based on the authentication state
+// note that the responsiblity of the navigation is not in this cubit,
+// it is in the router which is listening to supabase auth state
 class AuthManagerCubit extends Cubit<AuthManagerCubitState> {
-  AuthManagerCubit(this.routerCubit) : super(AuthInitial()) {
-    if (supabase.auth.currentUser != null) {
-      emit(AuthSuccess());
-      routerCubit.emit(Authenticated());
-    } else {
-      routerCubit.emit(Unauthenticated());
-    }
-
-    supabase.auth.onAuthStateChange.listen((data) {
-      final AuthChangeEvent event = data.event;
-      if (event == AuthChangeEvent.signedIn) {
-        emit(AuthSuccess());
-        routerCubit.emit(Authenticated());
-      }
-      if (event == AuthChangeEvent.signedOut) {
-        emit(AuthInitial());
-        routerCubit.emit(Unauthenticated());
-      }
-    }, onError: (e) {
-      print(e.toString());
-      emit(AuthFailure(getFailureFromException(e as Exception)));
-    });
-  }
-
-  final AuthRouterCubit routerCubit;
+  AuthManagerCubit() : super(AuthInitial());
 
   Future<void> loginWithPassword(String email, String password) async {
     try {
@@ -83,7 +58,7 @@ class AuthManagerCubit extends Cubit<AuthManagerCubitState> {
     }
   }
 
-  Future<void> _googleSignInWeb()async{
+  Future<void> _googleSignInWeb() async {
     await supabase.auth.signInWithOAuth(
       OAuthProvider.google,
     );
@@ -91,7 +66,6 @@ class AuthManagerCubit extends Cubit<AuthManagerCubitState> {
 
   Future<void> _googleSignInMobile() async {
     try {
-
       emit(AuthLoading());
       final webClientId = dotenv.env['google_web_client_id']!;
       final iosClientId = dotenv.env['google_ios_client_id']!;

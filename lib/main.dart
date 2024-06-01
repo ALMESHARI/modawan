@@ -49,13 +49,10 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp.router(
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
-      // routes: AppRouter.routes,
       title: 'Modawan',
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeManager.themeMode,
-      
-      // home: authRouteBuilder(),
     );
   }
 }
@@ -64,10 +61,9 @@ Future<void> _initialization() async {
   await dotenv.load(fileName: ".env");
   await Supabase.initialize(
     debug: true,
-    
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
-  print(supabase.auth.currentUser?.email);
+  initializeRouting(supabase);
   setupDependencyContainer();
 }
