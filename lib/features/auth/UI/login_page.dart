@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
 import 'package:modawan/core/widgets/background.dart';
@@ -165,7 +166,7 @@ class GoogleAuthButton extends StatelessWidget {
         return GestureDetector(
           onTap: () async {
             if (state is! AuthLoading) {
-              await authCubit.googleSignIn();
+              await authCubit.googleSignIn(kIsWeb);
             }
           },
           child: GlassContainer(

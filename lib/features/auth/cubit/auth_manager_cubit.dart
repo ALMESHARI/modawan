@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:modawan/core/failures.dart';
@@ -75,8 +75,23 @@ class AuthManagerCubit extends Cubit<AuthManagerCubitState> {
     }
   }
 
-  Future<void> googleSignIn() async {
+  Future<void> googleSignIn(bool isWeb) async {
+    if (isWeb) {
+      await _googleSignInWeb();
+    } else {
+      await _googleSignInMobile();
+    }
+  }
+
+  Future<void> _googleSignInWeb()async{
+    await supabase.auth.signInWithOAuth(
+      OAuthProvider.google,
+    );
+  }
+
+  Future<void> _googleSignInMobile() async {
     try {
+
       emit(AuthLoading());
       final webClientId = dotenv.env['google_web_client_id']!;
       final iosClientId = dotenv.env['google_ios_client_id']!;

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:modawan/core/router.dart';
+import 'package:modawan/core/router/router.dart';
 import 'package:modawan/dependency_container.dart';
 import 'package:modawan/theme/theme_constants.dart';
 import 'package:modawan/theme/theme_manager.dart';
@@ -46,15 +46,16 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
+      routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
-      routes: AppRouter.routes,
+      // routes: AppRouter.routes,
       title: 'Modawan',
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeManager.themeMode,
       
-      home: authRouteBuilder(),
+      // home: authRouteBuilder(),
     );
   }
 }
@@ -67,5 +68,6 @@ Future<void> _initialization() async {
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
+  print(supabase.auth.currentUser?.email);
   setupDependencyContainer();
 }
