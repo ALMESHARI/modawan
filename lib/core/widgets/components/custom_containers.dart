@@ -1,13 +1,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:modawan/theme/theme_constants.dart';
+import 'package:modawan/core/theme/theme_constants.dart';
 
 class GlassContainer extends StatelessWidget {
   final Widget child;
   final double radius;
   final double? height;
 
-  const GlassContainer({super.key, required this.child, this.radius = 10, this.height});
+  const GlassContainer(
+      {super.key, required this.child, this.radius = 10, this.height});
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +33,25 @@ class GlassContainer extends StatelessWidget {
           child: child,
         ),
       ),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class GradientContainer extends StatelessWidget {
+  final Widget child;
+  final Gradient? gradient;
+  const GradientContainer({super.key, required this.child, this.gradient});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: gradient ?? (Theme.of(context).brightness == Brightness.dark
+                ? AppColors.darkBackgroundGradient
+                : AppColors.lightBackgroundGradient),
+      ),
+      child: child,
     );
   }
 }

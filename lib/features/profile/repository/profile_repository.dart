@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modawan/core/failures.dart';
-import 'package:modawan/core/modawanAPI.dart';
+import 'package:modawan/core/modawan_api.dart';
 import 'package:modawan/features/profile/repository/profile_model.dart';
 import 'package:modawan/main.dart';
 

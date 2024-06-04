@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:modawan/theme/theme_constants.dart';
+import 'package:modawan/core/theme/theme_constants.dart';
 
 class BackgroundPen extends StatelessWidget {
   const BackgroundPen({super.key, required this.child});

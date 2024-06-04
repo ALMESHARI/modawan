@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:modawan/core/widgets/custom_containers.dart';
+import 'package:modawan/core/widgets/components/custom_containers.dart';
 import 'package:modawan/features/auth/cubit/auth_manager_cubit.dart';
 import 'package:modawan/main.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomePage2 extends StatefulWidget {
+  const HomePage2({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomePage2> createState() => _HomePage2State();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePage2State extends State<HomePage2> {
   String? data;
 
   final authCubit = GetIt.I.get<AuthManagerCubit>();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:modawan/core/imagePickerHelper.dart';
+import 'package:modawan/core/image_picker_helper.dart';
 import 'package:modawan/features/profile/repository/profile_repository.dart';
 import 'package:modawan/main.dart';
 

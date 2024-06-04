@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
-import 'package:modawan/core/widgets/background.dart';
-import 'package:modawan/core/widgets/custom_containers.dart';
-import 'package:modawan/core/widgets/modawan_logo.dart';
+import 'package:modawan/core/widgets/components/background.dart';
+import 'package:modawan/core/widgets/components/custom_containers.dart';
+import 'package:modawan/core/widgets/components/modawan_logo.dart';
 import 'package:modawan/features/auth/cubit/auth_manager_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:modawan/theme/theme_constants.dart';
+import 'package:modawan/core/theme/theme_constants.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
@@ -55,10 +55,16 @@ class LoginPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      CustomPaint(
-                        size: const Size(208, 243),
-                        painter: ModawanLogoPainter(
-                            isDark ? AppColors.whiteblue : AppColors.darkblue),
+                      // CustomPaint(
+                      //   size: const Size(208, 243),
+                      //   painter: ModawanLogoPainter(
+                      //       isDark ? AppColors.whiteblue : AppColors.darkblue),
+                      // ),
+                      ModawanLogo(
+                        width: 200,
+                        color:
+                            isDark ? AppColors.whiteblue : AppColors.darkblue,
+                        labeled: true,
                       ),
                       Column(
                         children: [
@@ -84,7 +90,6 @@ class LoginPage extends StatelessWidget {
                                         onPressed: () {
                                           authCubit.clearState();
                                           emailController.clear();
-
                                         },
                                         icon: const Icon(Icons.edit),
                                       )
@@ -95,6 +100,12 @@ class LoginPage extends StatelessWidget {
                           const SizedBox(
                             height: 20,
                           ),
+                          ElevatedButton(
+                              onPressed: () async {
+                                await authCubit.loginWithPassword(
+                                    'test1@test.com', 'test1234');
+                              },
+                              child: const Text('for test')),
                           () {
                             if (state is AuthOTPSent) {
                               return GlassContainer(

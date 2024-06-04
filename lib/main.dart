@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:modawan/core/router/router.dart';
 import 'package:modawan/dependency_container.dart';
-import 'package:modawan/theme/theme_constants.dart';
-import 'package:modawan/theme/theme_manager.dart';
+import 'package:modawan/core/theme/theme_constants.dart';
+import 'package:modawan/core/theme/theme_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -64,6 +64,26 @@ Future<void> _initialization() async {
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
-  initializeRouting(supabase);
+  _initializeRouting();
   setupDependencyContainer();
+}
+
+void _initializeRouting() {
+  if (supabase.auth.currentUser != null) {
+    appRouter.go('/home');
+  } else {
+    appRouter.go('/login');
+  }
+
+  supabase.auth.onAuthStateChange.listen((data) {
+    final AuthChangeEvent event = data.event;
+    if (event == AuthChangeEvent.signedIn) {
+      appRouter.go('/home');
+    }
+    if (event == AuthChangeEvent.signedOut) {
+      appRouter.go('/login');
+    }
+  }, onError: (e) {
+    appRouter.go('/login');
+  });
 }

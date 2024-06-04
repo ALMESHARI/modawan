@@ -59,9 +59,13 @@ class AuthManagerCubit extends Cubit<AuthManagerCubitState> {
   }
 
   Future<void> _googleSignInWeb() async {
+    try{
     await supabase.auth.signInWithOAuth(
       OAuthProvider.google,
     );
+    } catch (e) {
+      emit(AuthFailure(getFailure(e.toString())));
+    }
   }
 
   Future<void> _googleSignInMobile() async {

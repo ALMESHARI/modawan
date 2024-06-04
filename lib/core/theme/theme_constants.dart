@@ -4,15 +4,10 @@ import 'package:flutter/material.dart';
 //
 
 ThemeData lightTheme = ThemeData(
+  fontFamily: 'Roboto-Regular',
   textSelectionTheme: const TextSelectionThemeData(
       cursorColor: Color.fromARGB(255, 61, 61, 61)),
   textButtonTheme: textButtonTheme,
-  colorScheme: ColorScheme.light(
-    primary: AppColors.lightBackgroundGradient.colors[0],
-    secondary: AppColors.lightBackgroundGradient.colors[1],
-    // onPrimary: AppColors.whiteblue,
-    // onSecondary: AppColors.whiteblue,
-  ),
   textTheme: TextTheme(
     bodyMedium: AppTextStyles.maintextstyle,
     displayMedium: AppTextStyles.clickabletext,
@@ -27,15 +22,10 @@ ThemeData lightTheme = ThemeData(
 );
 
 ThemeData darkTheme = ThemeData(
+  fontFamily: 'Roboto-Regular',
   textButtonTheme: textButtonTheme,
   textSelectionTheme:
       const TextSelectionThemeData(cursorColor: AppColors.whiteblue),
-  colorScheme: ColorScheme.dark(
-    primary: AppColors.darkBackgroundGradient.colors[0],
-    secondary: AppColors.darkBackgroundGradient.colors[1],
-    // onPrimary: AppColors.whiteblue,
-    // onSecondary: AppColors.whiteblue,
-  ),
   textTheme: TextTheme(
     bodyMedium: AppTextStyles.maintextstyle
         .copyWith(color: const Color.fromARGB(255, 223, 223, 223)),
@@ -124,14 +114,19 @@ TextButtonThemeData textButtonTheme = TextButtonThemeData(
 class AppColors {
   AppColors();
   //radial gradient from FFFFF to F9FAFF
-  static const LinearGradient lightBackgroundGradient = LinearGradient(
-    begin: Alignment.center,
+  static const lightBackgroundGradient = LinearGradient(
+    begin: Alignment.topRight,
     end: Alignment.bottomLeft,
     colors: <Color>[
-      Color.fromARGB(255, 249, 250, 255),
-      Color.fromARGB(255, 255, 255, 255),
+      AppColors.whiteblue,
+      Colors.white,
+      AppColors.whiteblue,
+
+      // AppColors.darkblue,
+      // Color.fromARGB(255, 255, 255, 255),
+      // AppColors.darkblue,
     ],
-    stops: <double>[0.4, 1.0],
+    stops: <double>[0.0,0.5, 1],
   );
 
   static const LinearGradient darkBackgroundGradient = LinearGradient(
@@ -149,7 +144,7 @@ class AppColors {
   static const Color darkblue = Color(0xff2a2a42);
   static const Color highlighttextcolor = Color(0xff9b9ad1);
   static const Color mainstroke = Color(0x1ab1b1c9);
-  static const Color whiteblue = Color(0xfff9fafc);
+  static const Color whiteblue = Color.fromARGB(255, 244, 246, 255);
   static const Color glasscolor = Color(0x66fafaff);
 }
 
