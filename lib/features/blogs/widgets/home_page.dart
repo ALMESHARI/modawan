@@ -1,9 +1,12 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:modawan/core/theme/theme_constants.dart';
 import 'package:modawan/core/widgets/components/custom_containers.dart';
 import 'package:modawan/core/widgets/components/modawan_logo.dart';
-import 'package:modawan/features/blogs/repository/blog_model.dart';
+import 'package:modawan/features/blogs/cubits/slider_blogs/slider_blogs_cubit.dart';
+import 'package:modawan/features/blogs/data/blog_model.dart';
 
 class HomePage extends StatelessWidget {
   HomePage({super.key});
@@ -54,8 +57,31 @@ class HomePage extends StatelessWidget {
           // add carousel here
           TopicsBar(topics: topics),
           const SizedBox(height: 40),
-          CarouselSlider(
-              items: _buildBlogs(blogs),
+          BlogsSlider(),
+          // add news list here
+        ],
+      ),
+    ));
+  }
+}
+
+class BlogsSlider extends StatelessWidget {
+  BlogsSlider({
+    super.key,
+  });
+
+  final sliderBlogsCubit = GetIt.I.get<SliderBlogsCubit>();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SliderBlogsCubit, SliderBlogsState>(
+      bloc: sliderBlogsCubit,
+      builder: (context, state) {
+        if (state is SliderBlogsInitial) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (state is SliderBlogsRetrieved) {
+          return CarouselSlider(
+              items: _buildBlogs(state.blogs),
               options: CarouselOptions(
                 clipBehavior: Clip.none,
                 height: 500,
@@ -71,15 +97,17 @@ class HomePage extends StatelessWidget {
                 enlargeCenterPage: true,
                 enlargeFactor: 0.2,
                 scrollDirection: Axis.horizontal,
-              )),
-          // add news list here
-        ],
-      ),
-    ));
+              ));
+        } else if (state is SliderBlogsError) {
+          return Center(child: Text(state.message));
+        }
+        return const Center(child: Text('Error'));
+      },
+    );
   }
 }
 
-List<Widget> _buildBlogs(List<Blog> blogs) {
+List<Widget> _buildBlogs(List<BlogModel> blogs) {
   List<Widget> newsWidgets = blogs.map((blog) {
     return BlogVCard(blog: blog);
   }).toList();
@@ -88,7 +116,7 @@ List<Widget> _buildBlogs(List<Blog> blogs) {
 
 class BlogVCard extends StatelessWidget {
   const BlogVCard({super.key, required this.blog});
-  final Blog blog;
+  final BlogModel blog;
 
   @override
   Widget build(BuildContext context) {
@@ -104,10 +132,10 @@ class BlogVCard extends StatelessWidget {
                         .withOpacity(0.1)))),
         child: Column(
           children: [
-            Image.network(blog.imageUrl),
+            // Image.network(blog.mainImageUrl),
             Text(blog.title),
             Text(blog.description),
-            Text(blog.author),
+            // Text(blog.author),
             Text(blog.date),
           ],
         ),
@@ -132,8 +160,7 @@ class TopicsBar extends StatelessWidget {
           color: AppColors.darkblue.withOpacity(0.01),
           border: Border.symmetric(
               horizontal: BorderSide(
-                  color: Color.fromARGB(255, 0, 0, 0)
-                      .withOpacity(0.1)))),
+                  color: Color.fromARGB(255, 0, 0, 0).withOpacity(0.1)))),
       child: CarouselSlider(
           items: _buildTopics(topics),
           options: CarouselOptions(

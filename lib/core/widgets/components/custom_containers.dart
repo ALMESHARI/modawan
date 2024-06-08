@@ -19,7 +19,7 @@ class GlassContainer extends StatelessWidget {
           color: Colors.white.withOpacity(0.1),
           boxShadow: [mainBoxShadow],
           border: Border.all(
-            color: Color.fromARGB(77, 198, 198, 198).withOpacity(0.2),
+            color: const Color.fromARGB(77, 198, 198, 198).withOpacity(0.2),
           )),
       child: ClipRRect(
         clipBehavior: Clip.antiAliasWithSaveLayer,

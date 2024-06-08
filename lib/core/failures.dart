@@ -33,7 +33,12 @@ Failure getFailure(String message) {
 }
 
 // you can specify the message of the exception
-Failure getFailureFromException(Exception e) {
+Failure getFailureFromException(Object e) {
+  // check wheither it is an exception or an error
+  if (e is Error) {
+    print('Error happened: ${e.toString()}');
+    throw e; // this should not happen in the app but it might happens during development so we throw it
+  }
   if (e is StorageException) {
     return ServerFailure(e.toString());
   } else if (e is CacheException) {
