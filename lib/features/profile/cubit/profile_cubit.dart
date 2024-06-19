@@ -18,7 +18,6 @@ class ProfileCubit extends Cubit<ProfileState> {
       return (state as ProfileLoaded).profile.finishSteup;
     }
     final profile = await retrieveProfile(userID);
-    print('this is profile ${profile}');
     if (profile != null) {
       return profile.finishSteup;
     }
@@ -32,6 +31,10 @@ class ProfileCubit extends Cubit<ProfileState> {
       (l) => emit(ProfileError(l.message)),
       (r) => emit(ProfileLoaded(profile)),
     );
+  }
+  Future<void> updateCachedProfile(ProfileModel profile) async {
+    emit(ProfileLoaded(profile));
+    await _profileRepository.updateCachedProfile(profile);
   }
 
   Future<ProfileModel?> retrieveProfile(String userID) async {
@@ -50,8 +53,6 @@ class ProfileCubit extends Cubit<ProfileState> {
     );
     // this is to update the cache in both cases of success or failure
     final res = await _profileRepository.retrieveProfile(userID);
-                            print('this is finish sssssssssa ');
-
     res.fold(
       (l) {
         if (!cachedSuccessed) emit(ProfileError(l.message));

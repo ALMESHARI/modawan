@@ -4,7 +4,7 @@ class ProfileModel extends Equatable {
   final String userID;
   final String appreaingName;
   final String about;
-  final String avatar;
+  final String? avatar;
   final bool finishSteup;
   final String username;
   final DateTime createdAt;

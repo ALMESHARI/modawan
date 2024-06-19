@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:modawan/core/theme/theme_constants.dart';
-import 'package:modawan/core/widgets/components/custom_containers.dart';
-import 'package:modawan/core/widgets/components/modawan_logo.dart';
+import 'package:modawan/core/components/widgets/custom_containers.dart';
+import 'package:modawan/core/components/widgets/modawan_logo.dart';
 import 'package:modawan/features/blogs/cubits/slider_blogs/slider_blogs_cubit.dart';
 import 'package:modawan/features/blogs/data/blog_model.dart';
 

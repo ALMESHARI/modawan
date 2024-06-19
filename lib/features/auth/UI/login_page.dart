@@ -1,9 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get_it/get_it.dart';
-import 'package:modawan/core/widgets/components/background.dart';
-import 'package:modawan/core/widgets/components/custom_containers.dart';
-import 'package:modawan/core/widgets/components/modawan_logo.dart';
+import 'package:modawan/core/components/widgets/background.dart';
+import 'package:modawan/core/components/widgets/custom_containers.dart';
+import 'package:modawan/core/components/widgets/modawan_logo.dart';
 import 'package:modawan/features/auth/cubit/auth_manager_cubit.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';

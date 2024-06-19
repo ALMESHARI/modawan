@@ -75,11 +75,26 @@ class ProfileRepository {
     try {
       final result =
           await supabase.from('profiles').select().eq('user_id', userID);
-      final profile = ProfileModel.fromMap(result[0]);
+      
+      ProfileModel profile = ProfileModel.fromMap(result[0]);
+      if (profile.avatar != null) {
+        profile = profile.copyWith(
+          avatar: await retrieveImageUrl(distPath: profile.avatar!),
+        );
+      } else {
+        profile = profile.copyWith(avatar: null);
+      }
+
       await Modawanapi.putInCache('profiles', userID, profile.toMap());
+      print('profile: $profile');
       return Right(profile);
     } catch (e) {
       return Left(getFailureFromException(e));
     }
+  }
+
+  //update the cache with the new profile
+  Future<void> updateCachedProfile(ProfileModel profile) async {
+    await Modawanapi.putInCache('profiles', profile.userID, profile.toMap());
   }
 }

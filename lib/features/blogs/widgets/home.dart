@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:modawan/core/widgets/components/custom_containers.dart';
+import 'package:modawan/core/components/widgets/custom_containers.dart';
 import 'package:modawan/features/auth/cubit/auth_manager_cubit.dart';
 import 'package:modawan/main.dart';
 

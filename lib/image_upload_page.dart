@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:modawan/core/image_picker_helper.dart';
+import 'package:modawan/core/components/image_helper/image_picker_helper.dart';
+import 'package:modawan/core/router/router.dart';
 import 'package:modawan/features/profile/repository/profile_repository.dart';
 import 'package:modawan/main.dart';
 
@@ -58,7 +59,7 @@ class _ImageUploadPageState extends State<ImageUploadPage> {
             // navigate replacement  button to home screen
             ElevatedButton(
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/home');
+                appRouter.go('/home');
               },
               child: const Text('Home'),
             ),

@@ -48,6 +48,7 @@ dependencies:
     hive:
     hive_flutter:
     equatable: ^2.0.5
+    cached_network_image: ^3.3.1
 
 dev_dependencies:
     flutter_test:

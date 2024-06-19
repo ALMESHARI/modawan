@@ -80,7 +80,6 @@ Future<void> _initializeRouting() async {
 
     bool isFinishSetup =
         await profileCubit.isFinishSetup(supabase.auth.currentUser!.id);
-    print('this is finish setup $isFinishSetup');
     if (!isFinishSetup) {
       appRouter.go('/setup_profile');
     } else {
@@ -98,7 +97,6 @@ Future<void> _initializeRouting() async {
 
     bool isFinishSetup =
         await profileCubit.isFinishSetup(supabase.auth.currentUser!.id);
-    print('this is finish setup $isFinishSetup');
     if (!isFinishSetup) {
       appRouter.go('/setup_profile');
     } else {
