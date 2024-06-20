@@ -1,225 +1,228 @@
 import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modawan/core/components/image_helper/cubit/image_uplader_cubit.dart';
 import 'package:modawan/core/components/image_helper/image_picker_helper.dart';
 
-import '../../../main.dart';
-
-class DistinationInformation {
+class UpdateInforamtion {
   final String distpath;
   final String bucketName;
+  Future<void> Function(String newUrl)? onUpdated;
+  Future<void> Function(String error)? onFailed;
 
-  DistinationInformation(this.distpath, this.bucketName);
+  UpdateInforamtion(
+      {required this.distpath,
+      required this.bucketName,
+      this.onUpdated,
+      this.onFailed});
 }
 
 class ImageViewer extends StatelessWidget {
-  final Widget? placeholder;
-  final Widget? errorWidget;
-  final Widget? progressIndicator;
-  final bool checkCache;
-  final String imageUrl;
+  final Widget placeholder; // when error occurs
+  final Widget loadingWidget; // first load
+  final Widget updatingWidget; // when updating
+  final bool useCache;
+  final String? imageUrl;
   final XFile? imageFile;
   final bool viewMode;
   final String? title;
-  final Function(String)? onUpdated;
-  final DistinationInformation? distinationInformation; // for image update
+  final UpdateInforamtion? updateInformation; // for image update
 
-  factory ImageViewer.network(
-      {String? imageUrl,
-      DistinationInformation? dist,
-      Widget? placeholder,
-      bool checkCache = true,
-      bool viewMode = false,
-      Function(String)? onUpdated,
-      String? title}) {
-    return ImageViewer._(
-        distinationInformation: dist,
-        onUpdated: onUpdated,
-        imageUrl: imageUrl ?? '',
-        placeholder: placeholder,
-        checkCache: checkCache,
-        viewMode: viewMode,
-        title: title);
-  }
-
-  const ImageViewer._(
-      {this.placeholder,
-      this.checkCache = true,
+// put default values in this constructor
+  const ImageViewer(
+      {super.key,
       this.imageUrl = '',
+      this.placeholder = const DefaultPlaceHolder(),
+      this.loadingWidget = const DefaultLoadingWidget(),
+      this.updatingWidget = const DefaultUpdatingWidget(),
       this.imageFile,
-      this.viewMode = false,
+      this.viewMode = true,
+      this.useCache = true,
       this.title,
-      this.errorWidget,
-      this.progressIndicator,
-      this.distinationInformation,
-      this.onUpdated});
+      this.updateInformation});
 
   @override
   Widget build(BuildContext context) {
-    ImageUpladerCubit? imageUpladerCubit;
+    dynamic child = BaseImageViewer(
+      loadingWidget: loadingWidget,
+      imageUrl: imageUrl!,
+      placeholder: placeholder,
+      useCache: useCache,
+      imageFile: imageFile,
+    );
 
-    if (distinationInformation != null) {
-      imageUpladerCubit = ImageUpladerCubit(distinationInformation!.bucketName,
-          distinationInformation!.distpath, imageUrl, onUpdated);
-
-      if (!viewMode) {
-        return BlocBuilder<ImageUpladerCubit, ImageUpladerState>(
-          bloc: imageUpladerCubit,
-          builder: (context, state) {
-            return Stack(children: [
-              BaseImageViewer(
-                placeholder: placeholder,
-                progressIndicator: progressIndicator,
-                imageUrl: imageUpladerCubit!.currentUrl,
-                errorWidget: errorWidget,
-                checkCache: checkCache,
-                imageUpladerCubit: imageUpladerCubit,
-              ),
-              state is ImageUpladerLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : Container(),
-            ]);
-          },
-        );
-      }
-    }
-
-    if (viewMode) {
-      return withViewMode(
-          context,
-          title,
-          BaseImageViewer(
-            placeholder: placeholder,
-            progressIndicator: progressIndicator,
-            imageUrl: imageUrl,
-            errorWidget: errorWidget,
-            checkCache: checkCache,
-            imageUpladerCubit: imageUpladerCubit,
-          ),
-          imageUpladerCubit);
-    } else {
-      return BaseImageViewer(
-        placeholder: placeholder,
-        progressIndicator: progressIndicator,
-        imageUrl: imageUrl,
-        errorWidget: errorWidget,
-        checkCache: checkCache,
-      );
-    }
-  }
-
-  Widget withViewMode(BuildContext context, String? title, Widget child,
-      ImageUpladerCubit? imageUpladerCubit) {
-    //TODO: implement view mode
-
-    if (imageUpladerCubit != null) {
-      return BlocBuilder<ImageUpladerCubit, ImageUpladerState>(
-        bloc: imageUpladerCubit,
-        builder: (context, state) {
-          return GestureDetector(
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => ViewModePage(
-                          title: title,
-                          imageUpladerCubit: imageUpladerCubit,
-                          child: child,
-                        )));
-              },
-              child: child);
-        },
-      );
-    } else {
-      return GestureDetector(
-        onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => ViewModePage(
-                    title: title,
-                    child: child,
-                  )));
-        },
+// is it updateable
+    if (updateInformation != null) {
+      child = EditableImage(
+        alwaysUpdateOnTap: !viewMode,
+        updateInforamtion: updateInformation!,
+        updatingWidget: updatingWidget,
         child: child,
       );
     }
+// is view mode enabled
+    if (viewMode) {
+      child = ViewableImage(child: child, title: title);
+    }
+    return child;
   }
 }
 
-class BaseImageViewer extends StatelessWidget {
-  BaseImageViewer({
-    super.key,
-    required this.placeholder,
-    this.progressIndicator,
-    required this.imageUrl,
-    this.errorWidget,
-    required this.checkCache,
-    this.imageUpladerCubit,
-  });
+class EditableImage extends StatelessWidget {
+  EditableImage(
+      {super.key,
+      required UpdateInforamtion updateInforamtion,
+      required this.child,
+      required this.updatingWidget,
+      required this.alwaysUpdateOnTap})
+      : cubit =
+            ImageUpladerCubit(updateInforamtion.distpath, updateInforamtion);
+  final ImageUpladerCubit cubit;
+  final BaseImageViewer child;
+  final Widget updatingWidget;
+  final bool alwaysUpdateOnTap;
 
-  final Widget? placeholder;
-  final Widget? progressIndicator;
-  late String imageUrl;
-  final Widget? errorWidget;
-  final bool checkCache;
-  final ImageUpladerCubit? imageUpladerCubit;
+  Future<void> updateImage(BuildContext context) async {
+    imagePickerHelper.call(context, (image) async {
+      await cubit.uploadImage(image: image);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (imageUpladerCubit == null) {
-      return widget(context, imageUrl);
-    } else {
-      return BlocBuilder<ImageUpladerCubit, ImageUpladerState>(
-        bloc: imageUpladerCubit,
-        builder: (context, state) {
-          if (state is ImageUpladerLoaded) {
-            return widget(context, imageUpladerCubit!.currentUrl);
-          } else if (state is ImageUpladerLoading) {
-            print('loading');
-            return Stack(
-              children: [
-                const Center(child: CircularProgressIndicator()),
-                // widget(context, imageUrl),
-              ],
-            );
-          } else if (state is ImageUpladerError) {
-            //show error
-            SchedulerBinding.instance!.addPostFrameCallback((timeStamp) =>
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(state.message))));
-            
-            return widget(context, imageUrl);
-          } else {
-            return widget(context, imageUpladerCubit!.currentUrl);
-          }
+    return BlocProvider<ImageUpladerCubit>(
+      create: (context) => cubit,
+      child: BlocBuilder<ImageUpladerCubit, ImageUpladerState>(
+        bloc: cubit,
+        buildWhen: (previous, current) {
+          return cubit.currentUrl != child.imageUrl;
         },
-      );
-    }
-  }
-  //TODO: make sure if url is empty, it should show placeholder
-
-  CachedNetworkImage widget(BuildContext context, String? imageUrl) {
-    return CachedNetworkImage(
-      imageUrl: imageUrl!,
-      placeholder: (context, url) =>
-          placeholder ?? Container(color: Colors.grey[200]),
-      errorWidget: (context, url, error) =>
-          errorWidget ?? const Icon(Icons.error),
+        builder: (context, state) {
+          Widget stack = Stack(
+            children: [
+              state is ImageUpladerLoaded
+                  ? child.copyWithNewUrl(
+                      cubit.currentUrl) // when successfully updated
+                  : child, // if not updated yet
+              state is ImageUpladerLoading ? updatingWidget : Container(),
+            ],
+          );
+          if (alwaysUpdateOnTap) {
+            return GestureDetector(
+              onTap: () async {
+                await updateImage(context);
+              },
+              child: stack,
+            );
+          }
+          return stack;
+        },
+      ),
     );
   }
 }
 
+class BaseImageViewer extends StatelessWidget {
+  /* responsible for showing image from network or file
+  *  if image file is provided it will be prioritized
+  *  if useCache is true it will use cached network image
+  *  if useCache is false it will use regular network image
+  *  it will handle loading and error states
+   */
+  const BaseImageViewer({
+    super.key,
+    required this.loadingWidget,
+    required this.imageUrl,
+    required this.placeholder,
+    required this.useCache,
+    this.imageFile,
+  });
+
+  final Widget loadingWidget;
+  final String imageUrl;
+  final Widget placeholder;
+  final XFile? imageFile;
+  final bool useCache;
+
+  // copy with for updated values
+  BaseImageViewer copyWithNewUrl(String newUrl) {
+    return BaseImageViewer(
+      loadingWidget: loadingWidget,
+      imageUrl: newUrl,
+      placeholder: placeholder,
+      useCache: useCache,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // image file will be prioritized
+    final Widget imageWidget;
+    if (imageFile != null) {
+      imageWidget = Image.file(
+        File(imageFile!.path),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => placeholder,
+      );
+    } else if (useCache) {
+      imageWidget = CachedNetworkImage(
+        imageUrl: imageUrl,
+        placeholder: (context, url) => loadingWidget,
+        errorWidget: (context, url, error) => placeholder,
+      );
+    } else {
+      imageWidget = Image.network(
+        imageUrl,
+        errorBuilder: (context, error, stackTrace) => placeholder,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+
+          return loadingWidget;
+        },
+      );
+    }
+    return FittedBox(
+      fit: BoxFit.cover,
+      clipBehavior: Clip.hardEdge,
+      child: imageWidget,
+    );
+  }
+}
+
+class ViewableImage extends StatelessWidget {
+  const ViewableImage({super.key, required this.child, this.title});
+
+  final Widget child;
+  final String? title;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => ViewModePage(
+                  title: title,
+                  child: child,
+                )));
+      },
+      child: child,
+    );
+  }
+}
+
+// UI Components
 class ViewModePage extends StatelessWidget {
-  const ViewModePage(
-      {super.key, this.title, required this.child, this.imageUpladerCubit});
+  /* responsible for showing image in view mode
+  *  it will show the image with title and edit button
+  *  if the child type is EditableImage it will show the edit button
+  *  if the child is not EditableImage it will not show the edit button
+   */
+  const ViewModePage({super.key, this.title, required this.child});
   final String? title;
   final Widget child;
-  final ImageUpladerCubit? imageUpladerCubit;
-  // if it is editable
 
   @override
   Widget build(BuildContext context) {
@@ -227,19 +230,17 @@ class ViewModePage extends StatelessWidget {
         appBar: AppBar(
           title: Text(title ?? ''),
           actions: [
-            imageUpladerCubit == null
+            child is! EditableImage
                 ? Container()
                 : BlocBuilder<ImageUpladerCubit, ImageUpladerState>(
-                    bloc: imageUpladerCubit,
+                    bloc: (child as EditableImage).cubit,
                     builder: (context, state) {
                       return IconButton(
                         icon: const Icon(Icons.edit),
                         onPressed: state is! ImageUpladerLoading
                             ? () async {
-                                imagePickerHelper.call(context, (image) async {
-                                  await imageUpladerCubit!
-                                      .uploadImage(image: image);
-                                });
+                                await (child as EditableImage)
+                                    .updateImage(context);
                               }
                             : null,
                       );
@@ -248,5 +249,42 @@ class ViewModePage extends StatelessWidget {
           ],
         ),
         body: child);
+  }
+}
+
+class DefaultPlaceHolder extends StatelessWidget {
+  const DefaultPlaceHolder({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.grey[200],
+      child: const Center(
+        child: Icon(Icons.image),
+      ),
+    );
+  }
+}
+
+class DefaultLoadingWidget extends StatelessWidget {
+  const DefaultLoadingWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // return sceleton background grey lodaer
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+}
+
+class DefaultUpdatingWidget extends StatelessWidget {
+  const DefaultUpdatingWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
   }
 }
