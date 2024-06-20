@@ -38,22 +38,23 @@ class SetupProfilePage extends StatelessWidget {
                     width: 100,
                     height: 100,
                     child: ImageViewer(
+                      title: 'Profile Picture',
                         imageUrl: state.profile.avatar,
-                        // updateInformation: UpdateInforamtion(
-                        //   distpath:
-                        //       '${supabase.auth.currentUser!.id}/profile${DateTime.now().millisecondsSinceEpoch}.png',
-                        //   bucketName: 'avatars',
-                        //   onUpdated: (newUrl) async {
-                        //     await cubit.updateCachedProfile(
-                        //         state.profile.copyWith(avatar: newUrl));
-                        //   },
-                        //   onFailed: (error) async {
-                        //     SchedulerBinding.instance.addPostFrameCallback((_) {
-                        //       ScaffoldMessenger.of(context)
-                        //           .showSnackBar(SnackBar(content: Text(error)));
-                        //     });
-                        //   },
-                        // )
+                        updateInformation: UpdateInforamtion(
+                          distpath:
+                              '${supabase.auth.currentUser!.id}/profile${DateTime.now().millisecondsSinceEpoch}.png',
+                          bucketName: 'avatars',
+                          onUpdated: (newUrl) async {
+                            await cubit.updateCachedProfile(
+                                state.profile.copyWith(avatar: newUrl));
+                          },
+                          onFailed: (error) async {
+                            SchedulerBinding.instance.addPostFrameCallback((_) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(content: Text(error)));
+                            });
+                          },
+                        )
                         ),
                   ),
                   // button to go to route /image

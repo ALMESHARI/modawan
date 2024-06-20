@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:modawan/core/components/image_helper/cubit/image_uplader_cubit.dart';
 import 'package:modawan/core/components/image_helper/image_picker_helper.dart';
+import 'package:modawan/core/theme/theme_constants.dart';
 
 class UpdateInforamtion {
   final String distpath;
@@ -78,8 +79,7 @@ class EditableImage extends StatelessWidget {
       required this.child,
       required this.updatingWidget,
       required this.alwaysUpdateOnTap})
-      : cubit =
-            ImageUpladerCubit(updateInforamtion.distpath, updateInforamtion);
+      : cubit = ImageUpladerCubit(child.imageUrl, updateInforamtion);
   final ImageUpladerCubit cubit;
   final BaseImageViewer child;
   final Widget updatingWidget;
@@ -102,6 +102,7 @@ class EditableImage extends StatelessWidget {
         },
         builder: (context, state) {
           Widget stack = Stack(
+            alignment: Alignment.center,
             children: [
               state is ImageUpladerLoaded
                   ? child.copyWithNewUrl(
@@ -164,7 +165,7 @@ class BaseImageViewer extends StatelessWidget {
     if (imageFile != null) {
       imageWidget = Image.file(
         File(imageFile!.path),
-        fit: BoxFit.cover,
+        alignment: Alignment.center,
         errorBuilder: (context, error, stackTrace) => placeholder,
       );
     } else if (useCache) {
@@ -184,11 +185,7 @@ class BaseImageViewer extends StatelessWidget {
         },
       );
     }
-    return FittedBox(
-      fit: BoxFit.cover,
-      clipBehavior: Clip.hardEdge,
-      child: imageWidget,
-    );
+    return imageWidget;
   }
 }
 
@@ -208,7 +205,10 @@ class ViewableImage extends StatelessWidget {
                   child: child,
                 )));
       },
-      child: child,
+      child: FittedBox(
+        fit: BoxFit.cover,
+        clipBehavior: Clip.hardEdge,
+        child: child),
     );
   }
 }
@@ -284,7 +284,12 @@ class DefaultUpdatingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: CircularProgressIndicator(),
+      child: SizedBox(
+          height: 50,
+          width: 50,
+          child: CircularProgressIndicator(
+            color: AppColors.darkblue,
+          )),
     );
   }
 }
