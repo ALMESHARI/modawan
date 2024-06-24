@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:modawan/core/router/router.dart';
 import 'package:modawan/dependency_container.dart';
 import 'package:modawan/core/theme/theme_constants.dart';
 import 'package:modawan/core/theme/theme_manager.dart';
-import 'package:modawan/features/profile/cubit/profile_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
@@ -76,15 +74,17 @@ Future<void> _initialization() async {
 
 Future<void> _initializeRouting() async {
   if (supabase.auth.currentUser != null) {
-    final profileCubit = GetIt.I.get<ProfileCubit>();
+    // final profileCubit = GetIt.I.get<ProfileCubit>();
 
-    bool isFinishSetup =
-        await profileCubit.isFinishSetup(supabase.auth.currentUser!.id);
-    if (!isFinishSetup) {
-      appRouter.go('/setup_profile');
-    } else {
-      appRouter.go('/home');
-    }
+    // bool isFinishSetup =
+    //     await profileCubit.isFinishSetup(supabase.auth.currentUser!.id);
+    // if (!isFinishSetup) {
+    //   appRouter.go('/setup_profile');
+    // } else {
+    //   appRouter.go('/home');
+    // }
+
+    appRouter.go('/auth_redirect');
   } else {
     appRouter.go('/login');
   }
@@ -93,15 +93,17 @@ Future<void> _initializeRouting() async {
     final AuthChangeEvent event = data.event;
     if (event == AuthChangeEvent.signedIn) {
 
-      final profileCubit = GetIt.I.get<ProfileCubit>();
+    //   final profileCubit = GetIt.I.get<ProfileCubit>();
 
-    bool isFinishSetup =
-        await profileCubit.isFinishSetup(supabase.auth.currentUser!.id);
-    if (!isFinishSetup) {
-      appRouter.go('/setup_profile');
-    } else {
-      appRouter.go('/home');
-    }
+    // bool isFinishSetup =
+    //     await profileCubit.isFinishSetup(supabase.auth.currentUser!.id);
+    // if (!isFinishSetup) {
+    //   appRouter.go('/setup_profile');
+    // } else {
+    //   appRouter.go('/home');
+    // }
+      
+        appRouter.go('/auth_redirect');
     }
     if (event == AuthChangeEvent.signedOut) {
       appRouter.go('/login');

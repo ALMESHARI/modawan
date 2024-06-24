@@ -7,7 +7,7 @@ class Modawanapi {
       {required String bucketName,
       required String distPath,
       required XFile image}) async {
-    await supabase.storage
+    final gg = await supabase.storage
         .from(bucketName)
         .uploadBinary(distPath, await image.readAsBytes());
     return supabase.storage.from(bucketName).getPublicUrl(distPath);

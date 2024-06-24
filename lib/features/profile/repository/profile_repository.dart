@@ -35,8 +35,12 @@ class ProfileRepository {
     }
   }
 
-  retrieveImageUrl({required String distPath}) {
+  String retrieveImageUrl({required String distPath}) {
     return supabase.storage.from('avatars').getPublicUrl(distPath);
+  }
+
+  String removeUrlFromAvatar(String avatar) {
+    return avatar.split('?')[0];
   }
 
   /* no need for add or delete profile record because
@@ -44,14 +48,23 @@ class ProfileRepository {
 
   Future<Either<Failure, ProfileModel>> updateProfile(
       {required ProfileModel data}) async {
+    // remove the url from avatar before updating the profile
+    if (data.avatar != null) {
+      data = data.copyWith(avatar: null);
+    }
     try {
       final res = await supabase
           .from('profiles')
           .update(data.toMap())
-          .eq('user_id', data.userID);
-      print(res);
-      await Modawanapi.putInCache('profiles', data.userID, data.toMap());
-      return Right(ProfileModel.fromMap(res));
+          .eq('user_id', data.userID)
+          .select();
+      await Modawanapi.putInCache('profiles', data.userID, res[0]);
+      // add avatarURL key to res map
+      if (res[0]['avatar'] != null) {
+        res[0]['avatarURL'] = retrieveImageUrl(distPath: res[0]['avatar']);
+      }
+
+      return Right(ProfileModel.fromMap(res[0]));
     } catch (e) {
       return Left(getFailureFromException(e));
     }
@@ -62,6 +75,9 @@ class ProfileRepository {
     try {
       final cached = await Modawanapi.fetchFromCache('profiles', userID);
       if (cached != null) {
+        if (cached['avatar'] != null) {
+          cached['avatarURL'] = retrieveImageUrl(distPath: cached['avatar']);
+        }
         return Right(ProfileModel.fromMap(cached as Map<String, dynamic>));
       }
 
@@ -75,11 +91,11 @@ class ProfileRepository {
     try {
       final result =
           await supabase.from('profiles').select().eq('user_id', userID);
-      
+
       ProfileModel profile = ProfileModel.fromMap(result[0]);
       if (profile.avatar != null) {
         profile = profile.copyWith(
-          avatar: await retrieveImageUrl(distPath: profile.avatar!),
+          avatarURL: retrieveImageUrl(distPath: profile.avatar!),
         );
       } else {
         profile = profile.copyWith(avatar: null);

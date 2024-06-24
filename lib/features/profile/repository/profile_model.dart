@@ -2,11 +2,11 @@ import 'package:equatable/equatable.dart';
 
 class ProfileModel extends Equatable {
   final String userID;
-  final String appreaingName;
-  final String about;
+  final String? appreaingName;
+  final String? about;
   final String? avatar;
-  final bool finishSteup;
-  final String username;
+  final String? avatarURL;
+  final String? username;
   final DateTime createdAt;
 
   const ProfileModel(
@@ -14,9 +14,15 @@ class ProfileModel extends Equatable {
       required this.appreaingName,
       required this.about,
       required this.avatar,
-      required this.finishSteup,
       required this.username,
-      required this.createdAt});
+      required this.createdAt,
+      this.avatarURL});
+
+  // getter isCompleted
+  bool get isCompleted {
+    return appreaingName != null &&
+        username != null;
+  }
 
   ProfileModel copyWith(
       {String? userID,
@@ -25,15 +31,16 @@ class ProfileModel extends Equatable {
       String? avatar,
       bool? finishSteup,
       String? username,
-      DateTime? createdAt}) {
+      DateTime? createdAt,
+      String? avatarURL}) {
     return ProfileModel(
       userID: userID ?? this.userID,
       appreaingName: appreaingName ?? this.appreaingName,
       about: about ?? this.about,
       avatar: avatar ?? this.avatar,
-      finishSteup: finishSteup ?? this.finishSteup,
       username: username ?? this.username,
       createdAt: createdAt ?? this.createdAt,
+      avatarURL: avatarURL ?? this.avatarURL,
     );
   }
 
@@ -43,7 +50,6 @@ class ProfileModel extends Equatable {
       'appearing_name': appreaingName,
       'about': about,
       'avatar': avatar,
-      'finish_setup': finishSteup,
       'username': username,
       'created_at': createdAt.toString(),
     };
@@ -56,12 +62,13 @@ class ProfileModel extends Equatable {
       appreaingName: map['appearing_name'],
       about: map['about'],
       avatar: map['avatar'],
-      finishSteup: map['finish_setup'],
       username: map['username'],
       createdAt: DateTime.parse(map['created_at']),
+      avatarURL: map['avatarURL'], // avatarURL stored in cache only
     );
   }
 
   @override
-  List<Object?> get props => [userID, appreaingName, about, avatar, finishSteup, username, createdAt];
+  List<Object?> get props =>
+      [userID, appreaingName, about, avatar, username, createdAt];
 }

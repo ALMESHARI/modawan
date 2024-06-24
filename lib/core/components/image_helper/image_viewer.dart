@@ -9,14 +9,16 @@ import 'package:modawan/core/components/image_helper/image_picker_helper.dart';
 import 'package:modawan/core/theme/theme_constants.dart';
 
 class UpdateInforamtion {
-  final String distpath;
+  final String? distpath;
   final String bucketName;
+  final String Function()? distPathGenerator;
   Future<void> Function(String newUrl)? onUpdated;
   Future<void> Function(String error)? onFailed;
 
   UpdateInforamtion(
-      {required this.distpath,
+      {this.distpath,
       required this.bucketName,
+      this.distPathGenerator,
       this.onUpdated,
       this.onFailed});
 }
@@ -30,7 +32,8 @@ class ImageViewer extends StatelessWidget {
   final XFile? imageFile;
   final bool viewMode;
   final String? title;
-  final UpdateInforamtion? updateInformation; // for image update
+  final UpdateInforamtion? updateInformation;
+  final String? heroAnimationKey; // for image update
 
 // put default values in this constructor
   const ImageViewer(
@@ -43,13 +46,15 @@ class ImageViewer extends StatelessWidget {
       this.viewMode = true,
       this.useCache = true,
       this.title,
-      this.updateInformation});
+      this.updateInformation,
+      this.heroAnimationKey});
 
   @override
   Widget build(BuildContext context) {
+    print(imageUrl);
     dynamic child = BaseImageViewer(
       loadingWidget: loadingWidget,
-      imageUrl: imageUrl!,
+      imageUrl: imageUrl ?? '',
       placeholder: placeholder,
       useCache: useCache,
       imageFile: imageFile,
@@ -66,7 +71,8 @@ class ImageViewer extends StatelessWidget {
     }
 // is view mode enabled
     if (viewMode) {
-      child = ViewableImage(child: child, title: title);
+      child = ViewableImage(
+          child: child, title: title, heroAnimationKey: heroAnimationKey);
     }
     return child;
   }
@@ -83,8 +89,9 @@ class EditableImage extends StatelessWidget {
   final ImageUpladerCubit cubit;
   final BaseImageViewer child;
   final Widget updatingWidget;
-  final bool alwaysUpdateOnTap;
+  final bool alwaysUpdateOnTap; // suitable if view mode is disabled
 
+// caller should call this function to update the image
   Future<void> updateImage(BuildContext context) async {
     imagePickerHelper.call(context, (image) async {
       await cubit.uploadImage(image: image);
@@ -98,7 +105,9 @@ class EditableImage extends StatelessWidget {
       child: BlocBuilder<ImageUpladerCubit, ImageUpladerState>(
         bloc: cubit,
         buildWhen: (previous, current) {
-          return cubit.currentUrl != child.imageUrl;
+          return (cubit.currentUrl != child.imageUrl) ||
+              (current is ImageUpladerLoading) ||
+              (current is ImageUpladerError);
         },
         builder: (context, state) {
           Widget stack = Stack(
@@ -130,7 +139,7 @@ class BaseImageViewer extends StatelessWidget {
   /* responsible for showing image from network or file
   *  if image file is provided it will be prioritized
   *  if useCache is true it will use cached network image
-  *  if useCache is false it will use regular network image
+  *  if useCache is false it will return regular network image
   *  it will handle loading and error states
    */
   const BaseImageViewer({
@@ -190,25 +199,41 @@ class BaseImageViewer extends StatelessWidget {
 }
 
 class ViewableImage extends StatelessWidget {
-  const ViewableImage({super.key, required this.child, this.title});
+  const ViewableImage(
+      {super.key, required this.child, this.title, this.heroAnimationKey});
 
   final Widget child;
   final String? title;
+  final String? heroAnimationKey;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => ViewModePage(
+        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+          if (heroAnimationKey != null) {
+            return Hero(
+                tag: heroAnimationKey!,
+                child: ViewModePage(
                   title: title,
                   child: child,
-                )));
+                ));
+          }
+          return ViewModePage(
+            title: title,
+            child: child,
+          );
+        }));
       },
-      child: FittedBox(
-        fit: BoxFit.cover,
-        clipBehavior: Clip.hardEdge,
-        child: child),
+      child: heroAnimationKey == null
+          ? FittedBox(
+              fit: BoxFit.cover, clipBehavior: Clip.hardEdge, child: child)
+          : Hero(
+              tag: heroAnimationKey!,
+              child: FittedBox(
+                  fit: BoxFit.cover,
+                  clipBehavior: Clip.hardEdge,
+                  child: child)),
     );
   }
 }
@@ -216,7 +241,7 @@ class ViewableImage extends StatelessWidget {
 // UI Components
 class ViewModePage extends StatelessWidget {
   /* responsible for showing image in view mode
-  *  it will show the image with title and edit button
+  *  it will show the widget either [BaseImageViewer or EditableImage] with title and edit button
   *  if the child type is EditableImage it will show the edit button
   *  if the child is not EditableImage it will not show the edit button
    */
@@ -248,7 +273,7 @@ class ViewModePage extends StatelessWidget {
                   ),
           ],
         ),
-        body: child);
+        body: InteractiveViewer(child: child));
   }
 }
 
@@ -273,7 +298,9 @@ class DefaultLoadingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // return sceleton background grey lodaer
     return const Center(
-      child: CircularProgressIndicator(),
+      child: CircularProgressIndicator(
+        color: AppColors.darkblue,
+      ),
     );
   }
 }

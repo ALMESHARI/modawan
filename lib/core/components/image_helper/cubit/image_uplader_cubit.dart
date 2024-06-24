@@ -15,11 +15,15 @@ class ImageUpladerCubit extends Cubit<ImageUpladerState> {
   final UpdateInforamtion updateInforamtion;
 
   Future<void> uploadImage({required XFile image}) async {
+    if (updateInforamtion.distPathGenerator == null && updateInforamtion.distpath == null) {
+      emit(ImageUpladerError('distPathGenerator or distpath must be provided'));
+      return;
+    }
     emit(ImageUpladerLoading());
     try {
       final newUrl = await Modawanapi.uploadImage(
         bucketName: updateInforamtion.bucketName,
-        distPath: updateInforamtion.distpath,
+        distPath: updateInforamtion.distpath ?? updateInforamtion.distPathGenerator!(),
         image: image,
       );
       currentUrl = newUrl;

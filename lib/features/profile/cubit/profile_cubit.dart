@@ -15,11 +15,11 @@ class ProfileCubit extends Cubit<ProfileState> {
   Future<bool> isFinishSetup(String userID) async {
 
     if (state is ProfileLoaded) {
-      return (state as ProfileLoaded).profile.finishSteup;
+      return (state as ProfileLoaded).profile.isCompleted;
     }
     final profile = await retrieveProfile(userID);
     if (profile != null) {
-      return profile.finishSteup;
+      return profile.isCompleted;
     }
     return true;
   }
@@ -32,9 +32,11 @@ class ProfileCubit extends Cubit<ProfileState> {
       (r) => emit(ProfileLoaded(profile)),
     );
   }
-  Future<void> updateCachedProfile(ProfileModel profile) async {
-    emit(ProfileLoaded(profile));
-    await _profileRepository.updateCachedProfile(profile);
+  Future<void> updateCachedProfile(ProfileModel profile, [bool emitState = true]) async {
+        await _profileRepository.updateCachedProfile(profile);
+    if (emitState) {
+      emit(ProfileLoaded(profile));
+    }
   }
 
   Future<ProfileModel?> retrieveProfile(String userID) async {
