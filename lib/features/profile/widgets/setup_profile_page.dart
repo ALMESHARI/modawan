@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-
 import '../../../core/components/splash_page.dart';
 import 'profile_form_page.dart';
-
 
 class SetupProfilePage extends StatefulWidget {
   const SetupProfilePage({super.key});
@@ -14,7 +12,6 @@ class SetupProfilePage extends StatefulWidget {
 }
 
 class _SetupProfilePageState extends State<SetupProfilePage> {
-
   int _currentPage = 0;
 
   @override
@@ -23,26 +20,22 @@ class _SetupProfilePageState extends State<SetupProfilePage> {
     _startTransitionTimers();
   }
 
-  void _startTransitionTimers() {
-    Timer(const Duration(seconds: 2), () {
-      setState(() {
-        _currentPage = 1;
-      });
-      Timer(const Duration(seconds: 2), () {
-        setState(() {
-          _currentPage = 2;
-        });
-        Timer(const Duration(seconds: 7), () {
-          setState(() {
-            _currentPage = 3;
-          });
-          Timer(const Duration(seconds: 2), () {
-            setState(() {
-              _currentPage = 4;
-            });
-          });
-        });
-      });
+  void _startTransitionTimers() async{
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      _currentPage += 1;
+    });
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      _currentPage += 1;
+    });
+    await Future.delayed(const Duration(seconds: 7));
+    setState(() {
+      _currentPage += 1;
+    });
+    await Future.delayed(const Duration(seconds: 2));
+    setState(() {
+      _currentPage += 1;
     });
   }
 
@@ -73,29 +66,20 @@ class _SetupProfilePageState extends State<SetupProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: AnimatedSwitcher(
         duration: const Duration(seconds: 1),
         transitionBuilder: (Widget child, Animation<double> animation) {
-          if (_currentPage == 0) {
-            // Only fade out when transitioning from SplashPage
-            return FadeTransition(
-              opacity: Tween<double>(begin: 1.0, end: 0.0).animate(animation),
-              child: child,
-            );
-          } else {
-            // Fade in and out for other transitions
             return FadeTransition(
               opacity: animation,
               child: child,
             );
-          }
         },
         child: _getCurrentWidget(),
       ),
     );
   }
 }
-
 
 class WelcomeWidget extends StatefulWidget {
   const WelcomeWidget({Key? key}) : super(key: key);

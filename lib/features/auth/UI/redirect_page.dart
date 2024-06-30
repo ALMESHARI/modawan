@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:modawan/core/components/splash_page.dart';
 import 'package:modawan/dependency_container.dart';
 import 'package:modawan/features/profile/cubit/profile_initializer/profile_initializer_cubit.dart';

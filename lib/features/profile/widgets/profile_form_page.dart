@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:modawan/core/components/widgets/background.dart';
 import '../../../core/components/image_helper/image_viewer.dart';
 import '../../../core/components/widgets/custom_containers.dart';
 import '../../../core/router/router.dart';
@@ -11,6 +12,7 @@ import '../../../dependency_container.dart';
 import '../cubit/check_username/check_username_cubit.dart';
 import '../cubit/profile_manager/profile_manager_cubit.dart';
 
+// ignore: must_be_immutable
 class ProfileFormBuilder extends StatelessWidget {
   ProfileFormBuilder({
     super.key,
@@ -38,60 +40,66 @@ class ProfileFormBuilder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ProfileManager, ProfileManagerState>(
-        bloc: profileCubit,
-        listener: (context, state) {
-          if (state is ProfileManagerLoaded && state.profile.isCompleted) {
-            appRouter.go('/home');
-          }
-          if (state is ProfileManagerError) {
-            errorNotifier.addError(ErrorType.generalError, state.message);
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              AvatarWidget(
+    return BackgroundPen(
+      child: BlocListener<ProfileManager, ProfileManagerState>(
+          bloc: profileCubit,
+          listener: (context, state) {
+            if (state is ProfileManagerLoaded && state.profile.isCompleted) {
+              appRouter.go('/home');
+            }
+            if (state is ProfileManagerError) {
+              errorNotifier.addError(ErrorType.generalError, state.message);
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                AvatarWidget(
+                    errorNotifier: errorNotifier,
+                    cubit: profileCubit,
+                    context: context),
+                Column(
+                  children: [
+                    BlocBuilder<ProfileManager, ProfileManagerState>(
+                        bloc: profileCubit,
+                        buildWhen: (previous, current) {
+                          return current.profile.username !=
+                              previous.profile.username;
+                        },
+                        builder: (context, state) {
+                          return UsernameWidget(
+                              currentUsername: state.profile.username,
+                              checkUsernameCubit: checkUsernameCubit);
+                        }),
+                    const SizedBox(height: 15),
+                    FullNameWidget(
+                        errorNotifier: errorNotifier,
+                        appearingNameController: appearingNameController),
+                    // about field
+                    const SizedBox(height: 15),
+                    AboutWidget(
+                      aboutController: aboutController,
+                    ),
+                    const SizedBox(height: 15),
+      
+                    ErrorWidget(errorNotifier: errorNotifier),
+                  ],
+                ),
+                // button to go to route /image
+                SubmitButton(
+                  profileCubit: profileCubit,
                   errorNotifier: errorNotifier,
-                  cubit: profileCubit,
-                  context: context),
-              Column(
-                children: [
-                  BlocBuilder<ProfileManager, ProfileManagerState>(
-                      bloc: profileCubit,
-                      builder: (context, state) {
-                        return UsernameWidget(
-                            currentUsername: state.profile.username,
-                            checkUsernameCubit: checkUsernameCubit);
-                      }),
-                  const SizedBox(height: 15),
-                  FullNameWidget(
-                      errorNotifier: errorNotifier,
-                      appearingNameController: appearingNameController),
-                  // about field
-                  const SizedBox(height: 15),
-                  AboutWidget(
-                    aboutController: aboutController,
-                  ),
-                  const SizedBox(height: 15),
-
-                  ErrorWidget(errorNotifier: errorNotifier),
-                ],
-              ),
-              // button to go to route /image
-              SubmitButton(
-                profileCubit: profileCubit,
-                errorNotifier: errorNotifier,
-                appearingNameController: appearingNameController,
-                checkUsernameCubit: checkUsernameCubit,
-                aboutController: aboutController,
-              ),
-            ],
-          ),
-        ));
+                  appearingNameController: appearingNameController,
+                  checkUsernameCubit: checkUsernameCubit,
+                  aboutController: aboutController,
+                ),
+              ],
+            ),
+          )),
+    );
   }
 }
 
@@ -133,8 +141,11 @@ class _SubmitButtonState extends State<SubmitButton> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  bool isValid() {
+    // only check for fullNameError
+    if (widget.errorNotifier.errors.containsKey(ErrorType.fullNameError)) {
+      return false;
+    }
     String? username;
     if (widget.checkUsernameCubit.state is CheckUsernameLoaded) {
       username =
@@ -143,17 +154,33 @@ class _SubmitButtonState extends State<SubmitButton> {
       username =
           (widget.checkUsernameCubit.state as CheckUsernameInitial).username;
     }
+    if (widget.profileCubit.state is! ProfileManagerLoading &&
+        username != null &&
+        widget.appearingNameController.text.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<CheckUsernameCubit, CheckUsernameState>(
       bloc: widget.checkUsernameCubit,
       builder: (context, state) {
+        String? username;
+        if (widget.checkUsernameCubit.state is CheckUsernameLoaded) {
+          username =
+              (widget.checkUsernameCubit.state as CheckUsernameLoaded).username;
+        } else if (widget.checkUsernameCubit.state is CheckUsernameInitial) {
+          username = (widget.checkUsernameCubit.state as CheckUsernameInitial)
+              .username;
+        }
         return BlocBuilder<ProfileManager, ProfileManagerState>(
           bloc: widget.profileCubit,
           builder: (context, state) {
             Function()? func;
-            if (state is ProfileManagerLoaded &&
-                widget.errorNotifier.errors.isEmpty &&
-                widget.checkUsernameCubit.state is CheckUsernameLoaded &&
-                widget.appearingNameController.text.isNotEmpty) {
+            if (isValid()) {
               func = () async {
                 await widget.profileCubit.updateProfile(state.profile.copyWith(
                     about: widget.aboutController.text,
@@ -255,7 +282,7 @@ class ErrorWidget extends StatefulWidget {
   const ErrorWidget({super.key, required this.errorNotifier});
 
   @override
-  _ErrorWidgetState createState() => _ErrorWidgetState();
+  State<ErrorWidget> createState() => _ErrorWidgetState();
 }
 
 class _ErrorWidgetState extends State<ErrorWidget> {
@@ -288,8 +315,8 @@ class _ErrorWidgetState extends State<ErrorWidget> {
                     child: Row(
                       children: [
                         const SizedBox(
-                          height: 40,
-                          width: 40,
+                          height: 48,
+                          width: 48,
                           child: Icon(
                             Icons.error,
                             color: Colors.redAccent,
@@ -345,17 +372,20 @@ class _AboutWidgetState extends State<AboutWidget> {
                 required isFocused,
                 required maxLength}) {
               updateCounter(currentLength);
+              return null;
             },
-            maxLength: 100,
+            maxLength: 180,
             keyboardType: TextInputType.multiline,
             minLines: 1,
             maxLines: 3,
+            inputFormatters: [
+              FilteringTextInputFormatter.deny(RegExp(r'\n')),
+            ],
             decoration: const InputDecoration(
-              contentPadding: EdgeInsets.all(18),
               prefixIcon: SizedBox(
                   height: 40,
                   width: 40,
-                  child: Icon(Icons.person_pin_outlined)),
+                  child: Icon(Icons.person_pin_circle_outlined)),
               hintText: 'About your self in few words',
             ),
           ),
@@ -365,9 +395,10 @@ class _AboutWidgetState extends State<AboutWidget> {
             child: StreamBuilder<Object>(
                 stream: stream,
                 builder: (context, snapshot) {
-                  return Text('${snapshot.hasData ? snapshot.data : 0}/100',
-                      style: AppTextStyles.buttontextstyle
-                          .copyWith(color: AppColors.inputplaceholdertext));
+                  return Text('${snapshot.hasData ? snapshot.data : 0}/180',
+                      style: AppTextStyles.buttontextstyle.copyWith(
+                          color: AppColors.inputplaceholdertext.withOpacity(0.4),
+                          fontSize: 10));
                 }),
           ),
         ],
@@ -396,27 +427,31 @@ class UsernameWidget extends StatelessWidget {
         // put default icon and text to be hint
 
         late Widget statusIcon = const SizedBox(
-          height: 40,
-          width: 40,
+          height: 48,
+          width: 48,
           child: Icon(
             Icons.info_outline,
             color: Color.fromARGB(255, 99, 149, 249),
           ),
         );
-        ;
-        late Widget statusText = Text(
-            'Username is unique string help you to be found easily!',
-            style: AppTextStyles.buttontextstyle.copyWith(
+
+        late Widget statusText = Text('Username help you to be found easily!',
+            style: AppTextStyles.maintextstyle.copyWith(
                 height: 1.2, color: const Color.fromARGB(255, 99, 149, 249)));
+        // statusText = TextField(
+        //   decoration: InputDecoration(
+        //       prefixIcon: const Icon(Icons.alternate_email_rounded),
+        //       hintText: 'Enter your username'),
+        // );
 
         if (state is CheckUsernameLoading) {
           statusIcon = const SizedBox(
-            height: 40,
-            width: 40,
+            height: 48,
+            width: 48,
             // child: CupertinoActivityIndicator(
             //     radius: 10, color: AppColors.inputplaceholdertext),
             child: Padding(
-              padding: EdgeInsets.all(10.0),
+              padding: EdgeInsets.all(14.0),
               child: CircularProgressIndicator(
                 strokeWidth: 2,
                 semanticsLabel: 'Checking username',
@@ -432,8 +467,8 @@ class UsernameWidget extends StatelessWidget {
 
         if (state is CheckUsernameError) {
           statusIcon = const SizedBox(
-            height: 40,
-            width: 40,
+            height: 48,
+            width: 48,
             child: Icon(
               Icons.error,
               color: Colors.red,
@@ -449,8 +484,8 @@ class UsernameWidget extends StatelessWidget {
               style: AppTextStyles.buttontextstyle
                   .copyWith(height: 1.2, color: AppColors.highlighttextcolor));
           statusIcon = const SizedBox(
-            height: 40,
-            width: 40,
+            height: 48,
+            width: 48,
             child: Icon(
               Icons.verified,
               color: AppColors.highlighttextcolor,
@@ -468,36 +503,41 @@ class UsernameWidget extends StatelessWidget {
           child: Column(
             children: [
               TextField(
+                buildCounter: (context,
+                        {required currentLength,
+                        required isFocused,
+                        required maxLength}) =>
+                    null,
+                maxLength: 15,
                 inputFormatters: [
-                  FilteringTextInputFormatter.deny(RegExp(r'\s')),
+                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
                 ],
                 controller: controller,
                 onChanged: (value) async {
                   await checkUsernameCubit.checkUsernameAvailability(
                       value.trim(), controller);
                 },
-                // disable when loading
-                // enabled: state
-                //     is! CheckUsernameLoading, // put value to be the same email when otp is sent
                 decoration: InputDecoration(
                     prefixIcon: const Icon(Icons.alternate_email_rounded),
                     hintText: hint),
+              ),
+              Divider(
+                height: 2,
+                color: AppColors.mainstroke,
+                thickness: 1,
               ),
               Container(
                 // put only bottom border radius
                 decoration: BoxDecoration(
                     borderRadius:
                         BorderRadius.vertical(bottom: Radius.circular(10))),
-                child: GlassContainer(
-                  radius: 0,
-                  child: Row(
-                    children: [
-                      statusIcon,
-                      Flexible(
-                        child: statusText,
-                      ),
-                    ],
-                  ),
+                child: Row(
+                  children: [
+                    statusIcon,
+                    Flexible(
+                      child: statusText,
+                    ),
+                  ],
                 ),
               )
             ],
@@ -523,15 +563,15 @@ class AvatarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final profile = cubit.state.profile;
-    return Container(
-      clipBehavior: Clip.hardEdge,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.glasscolor, width: 1),
-      ),
-      width: 150,
-      height: 150,
-      child: GlassContainer(
+    return GlassContainer(
+      radius: 100,
+      child: Container(
+        clipBehavior: Clip.hardEdge,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+        ),
+        width: 150,
+        height: 150,
         child: ImageViewer(
             viewMode: false,
             placeholder: SizedBox(
@@ -558,8 +598,8 @@ class AvatarWidget extends StatelessWidget {
               distPathGenerator: () =>
                   '${profile.userID}/profile${DateTime.now().millisecondsSinceEpoch}.png',
               bucketName: 'avatars',
-              onUpdated: (newUrl) async {
-                await cubit.updateProfile(profile.copyWith(avatarURL: newUrl));
+              onUpdated: (dist) async {
+                await cubit.updateProfile(profile.copyWith(avatar: dist));
                 errorNotifier.removeError(ErrorType.imageError);
               },
               onFailed: (error) async {

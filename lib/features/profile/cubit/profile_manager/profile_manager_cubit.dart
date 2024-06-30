@@ -19,4 +19,14 @@ class ProfileManager extends Cubit<ProfileManagerState> {
       emit(ProfileManagerLoaded(profile:r));
     });
   }
+
+  Future<void> updateOnlyCache(ProfileModel profile) async {
+    // emit(ProfileManagerLoading(profile: state.profile));
+    final res = await _profileRepository.updateCachedProfile( profile);
+    res.fold((l) {
+      emit(ProfileManagerError(profile: state.profile,message: l.message));
+    }, (r) {
+      emit(ProfileManagerLoaded(profile:r));
+    });
+  }
 }

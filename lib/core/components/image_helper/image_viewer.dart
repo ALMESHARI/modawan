@@ -12,7 +12,7 @@ class UpdateInforamtion {
   final String? distpath;
   final String bucketName;
   final String Function()? distPathGenerator;
-  Future<void> Function(String newUrl)? onUpdated;
+  Future<void> Function(String dist)? onUpdated;
   Future<void> Function(String error)? onFailed;
 
   UpdateInforamtion(
@@ -51,7 +51,6 @@ class ImageViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(imageUrl);
     dynamic child = BaseImageViewer(
       loadingWidget: loadingWidget,
       imageUrl: imageUrl ?? '',

@@ -30,7 +30,10 @@ class CheckUsernameCubit extends Cubit<CheckUsernameState> {
     final res = await profileRepository.checkUsernameAvailability(valueToCheck);
 
     res.fold(
-      (l) => emit(const CheckUsernameError('Something went wrong')),
+      (l) {
+        print('error: ${l.message}');
+        emit(const CheckUsernameError('Something went wrong'));
+      },
       (isAvailable) async {
         if (isAvailable) {
           emit(CheckUsernameLoaded(valueToCheck));

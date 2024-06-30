@@ -21,14 +21,15 @@ class ImageUpladerCubit extends Cubit<ImageUpladerState> {
     }
     emit(ImageUpladerLoading());
     try {
+      final dist = updateInforamtion.distpath ?? updateInforamtion.distPathGenerator!();
       final newUrl = await Modawanapi.uploadImage(
         bucketName: updateInforamtion.bucketName,
-        distPath: updateInforamtion.distpath ?? updateInforamtion.distPathGenerator!(),
+        distPath: dist,
         image: image,
       );
       currentUrl = newUrl;
       emit(ImageUpladerLoaded(newUrl));
-      updateInforamtion.onUpdated?.call(newUrl);
+      updateInforamtion.onUpdated?.call(dist);
     } catch (e) {
       updateInforamtion.onFailed?.call(getFailureFromException(e).message);
       emit(ImageUpladerError(getFailureFromException(e).message));

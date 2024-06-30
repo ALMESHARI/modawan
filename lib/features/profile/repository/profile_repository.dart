@@ -22,11 +22,9 @@ class ProfileRepository {
     }
   }
 
-
   String retrieveImageUrl({required String distPath}) {
     return supabase.storage.from('avatars').getPublicUrl(distPath);
   }
-
 
   /* no need for add or delete profile record because
     it will be done automatically when the user sign up or delete his account */
@@ -95,18 +93,25 @@ class ProfileRepository {
   }
 
   //update the cache with the new profile
-  // Future<void> updateCachedProfile(ProfileModel profile) async {
-  //   await Modawanapi.putInCache('profiles', profile.userID, profile.toMap());
-  // }
+  Future<Either<Failure, ProfileModel>> updateCachedProfile(
+      ProfileModel profile) async {
+    try {
+      await Modawanapi.putInCache('profiles', profile.userID, profile.toMap());
+      return Right(profile);
+    } catch (e) {
+      return Left(getFailureFromException(e));
+    }
+  }
 
-  Future<Either<Failure, bool>> checkUsernameAvailability(String newUsername) async {
+  Future<Either<Failure, bool>> checkUsernameAvailability(
+      String newUsername) async {
     try {
       await supabase
           .from('temp_reserved_usernames')
           .insert({'username': newUsername});
       return const Right(true);
     } catch (e) {
-      if (e.toString().contains('already taken')) {
+      if (e.toString().contains('already taken') || e.toString().contains('unique constraint')) {
         return const Right(false);
       }
       return Left(getFailureFromException(e));
