@@ -74,15 +74,6 @@ Future<void> _initialization() async {
 
 Future<void> _initializeRouting() async {
   if (supabase.auth.currentUser != null) {
-    // final profileCubit = GetIt.I.get<ProfileCubit>();
-
-    // bool isFinishSetup =
-    //     await profileCubit.isFinishSetup(supabase.auth.currentUser!.id);
-    // if (!isFinishSetup) {
-    //   appRouter.go('/setup_profile');
-    // } else {
-    //   appRouter.go('/home');
-    // }
 
     appRouter.go('/auth_redirect');
   } else {
@@ -91,18 +82,7 @@ Future<void> _initializeRouting() async {
 
   supabase.auth.onAuthStateChange.listen((data) async{
     final AuthChangeEvent event = data.event;
-    if (event == AuthChangeEvent.signedIn) {
-
-    //   final profileCubit = GetIt.I.get<ProfileCubit>();
-
-    // bool isFinishSetup =
-    //     await profileCubit.isFinishSetup(supabase.auth.currentUser!.id);
-    // if (!isFinishSetup) {
-    //   appRouter.go('/setup_profile');
-    // } else {
-    //   appRouter.go('/home');
-    // }
-      
+    if (event == AuthChangeEvent.signedIn) {      
         appRouter.go('/auth_redirect');
     }
     if (event == AuthChangeEvent.signedOut) {

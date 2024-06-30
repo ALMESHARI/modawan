@@ -73,6 +73,9 @@ class ImageViewer extends StatelessWidget {
     if (viewMode) {
       child = ViewableImage(
           child: child, title: title, heroAnimationKey: heroAnimationKey);
+    } else {
+      child = FittedBox(
+              fit: BoxFit.cover, clipBehavior: Clip.hardEdge, child: child);
     }
     return child;
   }
