@@ -4,5 +4,6 @@
     "dart.cliConsole": "terminal",
     "code-runner.runInTerminal": true,
     "dart.flutterHotReloadOnSave": "all",
-    "dart.hotReloadOnSave": "all"
+    "dart.hotReloadOnSave": "all",
+    "cmake.ignoreCMakeListsMissing": true
 }

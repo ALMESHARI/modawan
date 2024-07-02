@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:modawan/features/auth/UI/login_page.dart';
+import 'package:modawan/features/blog_editor/widgets/blog_editor_page.dart';
 import 'package:modawan/features/blogs/widgets/home_page.dart';
 import 'package:modawan/features/profile/widgets/setup_profile_page.dart';
-import 'package:modawan/image_upload_page.dart';
 import 'package:modawan/core/components/splash_page.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/auth/UI/redirect_page.dart';
-import '../../features/blogs/widgets/home.dart';
 
 final appRouter = GoRouter(
   // observers: [GoRouterObserver()],
@@ -25,22 +24,15 @@ final appRouter = GoRouter(
     GoRoute(
         path: '/auth_redirect',
         builder: (context, state) => AuthRedirectPage()),
-    
     GoRoute(
       path: '/home',
       builder: (context, state) => HomePage(),
     ),
-     GoRoute(
-      path: '/home2',
-      builder: (context, state) => HomePage2(),
-    ),
-    GoRoute(
-        path: '/image', builder: (context, state) => const ImageUploadPage()),
     GoRoute(
         path: '/setup_profile',
-   
-        pageBuilder: (context, state) => NoTransitionPage(child: SetupProfilePage())),
-    
+        pageBuilder: (context, state) =>
+            const NoTransitionPage(child: SetupProfilePage())),
+    GoRoute(path: '/blog_editor', builder: (context, state) => BlogEditorPage()),
   ],
 );
 

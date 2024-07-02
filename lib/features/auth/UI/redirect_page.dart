@@ -32,6 +32,12 @@ class AuthRedirectPage extends StatelessWidget {
       listener: (context, state) {
         if (state is ProfileInitializerLoaded) {
           // register the profile manager to be used in the app
+          // check if ProfileManager is registered first (when signing out it will be registered again)
+          //TODO: find a better way to handle this
+          // you should use blocprovider instead of registerSingleton
+          // bloc provider that cover all the routes in the router 
+        
+          if (!sl.isRegistered<ProfileManager>())
           sl.registerSingleton<ProfileManager>(ProfileManager(state.profile,sl()));
           if (state.profile.isCompleted) {
             appRouter.go('/home');

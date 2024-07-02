@@ -66,6 +66,7 @@ class _SetupProfilePageState extends State<SetupProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       resizeToAvoidBottomInset: false,
       body: AnimatedSwitcher(
         duration: const Duration(seconds: 1),

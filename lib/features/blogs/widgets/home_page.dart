@@ -8,6 +8,8 @@ import 'package:modawan/core/components/widgets/modawan_logo.dart';
 import 'package:modawan/features/blogs/cubits/slider_blogs/slider_blogs_cubit.dart';
 import 'package:modawan/features/blogs/data/blog_model.dart';
 
+import '../../../core/router/router.dart';
+
 class HomePage extends StatelessWidget {
   HomePage({super.key});
 
@@ -44,24 +46,30 @@ class HomePage extends StatelessWidget {
     final height = MediaQuery.of(context).size.height * 0.1;
     return GradientContainer(
         child: Scaffold(
-      //put gradient color as background
-      backgroundColor: Colors.transparent,
-      // app bar
-      appBar: PreferredSize(
+          floatingActionButton: FloatingActionButton(
+            child: const Icon(Icons.add),
+            onPressed: () {
+              //navigate to blog editor page
+              appRouter.push('/blog_editor');
+            },),
+              //put gradient color as background
+              backgroundColor: Colors.transparent,
+              // app bar
+              appBar: PreferredSize(
         preferredSize: Size.fromHeight(height), // here the desired height
-        child: CustomAappBar(height: height),
-      ),
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
-          // add carousel here
-          TopicsBar(topics: topics),
-          const SizedBox(height: 40),
-          BlogsSlider(),
-          // add news list here
-        ],
-      ),
-    ));
+        child: CustomAppBar(height: height),
+              ),
+              body: Column(
+                      children: [
+                        const SizedBox(height: 20),
+                        // add carousel here
+                        TopicsBar(topics: topics),
+                        const SizedBox(height: 40),
+                        BlogsSlider(),
+                        // add news list here
+                      ],
+              ),
+            ));
   }
 }
 
@@ -226,38 +234,40 @@ class TopicButton extends StatelessWidget {
   }
 }
 
-class CustomAappBar extends StatelessWidget {
-  const CustomAappBar({super.key, required this.height});
+class CustomAppBar extends StatelessWidget {
+  const CustomAppBar({super.key, required this.height});
   final double height;
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.glasscolor,
+      backgroundColor: Colors.transparent,
       flexibleSpace: Padding(
         padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              padding: const EdgeInsets.all(0),
-              onPressed: () {},
-              icon: const Icon(Icons.menu),
-              color: AppColors.darkblue,
-              iconSize: 30,
-            ),
-            ModawanLogo(
-              color: AppColors.darkblue,
-              width: height - 20, // padding is 10 top and bottom
-            ),
-            IconButton(
-              padding: const EdgeInsets.all(0),
-              onPressed: () {},
-              icon: const Icon(Icons.search),
-              color: AppColors.darkblue,
-              iconSize: 30,
-            ),
-          ],
+        child: SafeArea(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                padding: const EdgeInsets.all(0),
+                onPressed: () {},
+                icon: const Icon(Icons.menu),
+                color: Theme.of(context).primaryColor,
+                iconSize: 30,
+              ),
+              ModawanLogo(
+                color: Theme.of(context).primaryColor,
+                width: height - 20, // padding is 10 top and bottom
+              ),
+              IconButton(
+                padding: const EdgeInsets.all(0),
+                onPressed: () {},
+                icon: const Icon(Icons.search),
+                color: Theme.of(context).primaryColor,
+                iconSize: 30,
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -17,34 +17,33 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthManagerCubit, AuthManagerCubitState>(
-        bloc: authCubit,
-        builder: (context, state) {
-          if (state is AuthFailure && context.mounted) {
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.failure.message),
-                ),
-              );
-            });
-            authCubit.clearState();
-          } else if (state is AuthOTPSent && context.mounted) {
-            SchedulerBinding.instance.addPostFrameCallback((_) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('OTP sent to your email'),
-                ),
-              );
-            });
-          }
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: BlocBuilder<AuthManagerCubit, AuthManagerCubitState>(
+          bloc: authCubit,
+          builder: (context, state) {
+            if (state is AuthFailure && context.mounted) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.failure.message),
+                  ),
+                );
+              });
+              authCubit.clearState();
+            } else if (state is AuthOTPSent && context.mounted) {
+              SchedulerBinding.instance.addPostFrameCallback((_) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('OTP sent to your email'),
+                  ),
+                );
+              });
+            }
 
-          final isDark =
-              Theme.of(context).brightness == Brightness.dark ? true : false;
-          return Scaffold(
-            resizeToAvoidBottomInset: false,
-            // backgroundColor: Colors.transparent,
-            body: BackgroundPen(
+            final isDark =
+                Theme.of(context).brightness == Brightness.dark ? true : false;
+            return BackgroundPen(
               child: Center(
                 child: Container(
                   alignment: Alignment.center,
@@ -159,9 +158,9 @@ class LoginPage extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
-          );
-        });
+            );
+          }),
+    );
   }
 }
 

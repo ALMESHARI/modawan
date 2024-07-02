@@ -1,9 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 // display for clickable text
 //
 
 ThemeData lightTheme = ThemeData(
+  bottomSheetTheme: BottomSheetThemeData(
+    backgroundColor: Colors.transparent,
+  ),
+  appBarTheme: const AppBarTheme(
+    backgroundColor: AppColors.whiteblue,
+    systemOverlayStyle: SystemUiOverlayStyle(
+      systemNavigationBarColor: AppColors.whiteblue,
+      systemNavigationBarIconBrightness: Brightness.dark,
+
+      // Status bar color
+      statusBarColor: AppColors.whiteblue,
+
+      // Status bar brightness (optional)
+      statusBarIconBrightness: Brightness.dark, // For Android (dark icons)
+      statusBarBrightness: Brightness.light, // For iOS (dark icons)
+    ),
+  ),
+  scaffoldBackgroundColor: AppColors.whiteblue,
   fontFamily: 'Roboto-Regular',
   textSelectionTheme: const TextSelectionThemeData(
       cursorColor: Color.fromARGB(255, 61, 61, 61)),
@@ -22,6 +41,25 @@ ThemeData lightTheme = ThemeData(
 );
 
 ThemeData darkTheme = ThemeData(
+  bottomSheetTheme: BottomSheetThemeData(
+    backgroundColor: Colors.transparent,
+  ),
+  
+  appBarTheme: const AppBarTheme(
+    backgroundColor: AppColors.darkBackground,
+    systemOverlayStyle: SystemUiOverlayStyle(
+      systemNavigationBarColor: AppColors.darkBackground,
+      systemNavigationBarIconBrightness: Brightness.light,
+
+      // Status bar color
+      statusBarColor: AppColors.darkBackground,
+
+      // Status bar brightness (optional)
+      statusBarIconBrightness: Brightness.light, // For Android (dark icons)
+      statusBarBrightness: Brightness.dark, // For iOS (dark icons)
+    ),
+  ),
+  scaffoldBackgroundColor: AppColors.darkBackground,
   fontFamily: 'Roboto-Regular',
   textButtonTheme: textButtonTheme,
   textSelectionTheme:
@@ -33,7 +71,7 @@ ThemeData darkTheme = ThemeData(
         AppTextStyles.clickabletext.copyWith(color: AppColors.whiteblue),
   ),
   brightness: Brightness.dark,
-  primaryColor: AppColors.darkblue,
+  primaryColor: AppColors.whiteblue,
   floatingActionButtonTheme: const FloatingActionButtonThemeData(
     backgroundColor: AppColors.darkblue,
   ),
@@ -126,7 +164,7 @@ class AppColors {
       // Color.fromARGB(255, 255, 255, 255),
       // AppColors.darkblue,
     ],
-    stops: <double>[0.0,0.5, 1],
+    stops: <double>[0.0, 0.5, 1],
   );
 
   static const LinearGradient darkBackgroundGradient = LinearGradient(
@@ -146,6 +184,7 @@ class AppColors {
   static const Color mainstroke = Color(0x1ab1b1c9);
   static const Color whiteblue = Color.fromARGB(255, 244, 246, 255);
   static const Color glasscolor = Color(0x66fafaff);
+  static const Color darkBackground = Color.fromARGB(255, 17, 17, 31);
 }
 
 class AppTextStyles {

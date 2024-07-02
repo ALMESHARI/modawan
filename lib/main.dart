@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:modawan/core/router/router.dart';
 import 'package:modawan/dependency_container.dart';
@@ -36,6 +39,7 @@ class _MyAppState extends State<MyApp> {
     themeManager.addListener(() {
       themeListner();
     });
+    PlatformDispatcher.instance.onPlatformBrightnessChanged = themeListner;
     super.initState();
   }
 
@@ -47,13 +51,20 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: appRouter,
-      debugShowCheckedModeBanner: false,
-      title: 'Modawan',
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      themeMode: themeManager.themeMode,
+    return SafeArea(
+      child: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: themeManager.actualTheme == ThemeMode.light
+            ? lightTheme.appBarTheme.systemOverlayStyle as SystemUiOverlayStyle
+            : darkTheme.appBarTheme.systemOverlayStyle as SystemUiOverlayStyle,
+        child: MaterialApp.router(
+          routerConfig: appRouter,
+          debugShowCheckedModeBanner: false,
+          title: 'Modawan',
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: themeManager.themeMode,
+        ),
+      ),
     );
   }
 }
@@ -74,16 +85,15 @@ Future<void> _initialization() async {
 
 Future<void> _initializeRouting() async {
   if (supabase.auth.currentUser != null) {
-
     appRouter.go('/auth_redirect');
   } else {
     appRouter.go('/login');
   }
 
-  supabase.auth.onAuthStateChange.listen((data) async{
+  supabase.auth.onAuthStateChange.listen((data) async {
     final AuthChangeEvent event = data.event;
-    if (event == AuthChangeEvent.signedIn) {      
-        appRouter.go('/auth_redirect');
+    if (event == AuthChangeEvent.signedIn) {
+      appRouter.go('/auth_redirect');
     }
     if (event == AuthChangeEvent.signedOut) {
       appRouter.go('/login');

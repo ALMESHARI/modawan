@@ -21,7 +21,7 @@ class BackgroundPen extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.all(40.0),
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/pen.png'),
                 fit: BoxFit.cover,
